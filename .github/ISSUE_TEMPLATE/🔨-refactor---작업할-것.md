@@ -2,7 +2,7 @@
 name: "\U0001F528 Refactor - 작업할 것"
 about: Code Refactoring Template
 title: "\U0001F528 Refactor - "
-labels: ''
+labels: "♻️ Refactor"
 assignees: ''
 
 ---

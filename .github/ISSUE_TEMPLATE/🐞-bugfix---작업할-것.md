@@ -2,7 +2,7 @@
 name: "\U0001F41E BugFix - 작업할 것"
 about: Something isn't working Template
 title: "\U0001F41E BugFix - "
-labels: ''
+labels: "\U0001F41B BugFix"
 assignees: ''
 
 ---
