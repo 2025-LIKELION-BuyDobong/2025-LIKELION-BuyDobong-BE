@@ -28,13 +28,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (bearer != null && bearer.startsWith("Bearer ")) {
             try {
                 Claims claims = jwtProvider.parse(bearer.substring(7)).getPayload();
-                String userId = claims.getSubject();
+                String sub  = claims.getSubject();
                 String role = claims.get("role", String.class);
-                if (userId != null && role != null) {
-                    var auth = new UsernamePasswordAuthenticationToken(
-                            userId, null, List.of(new SimpleGrantedAuthority("ROLE_" + role)));
-                    SecurityContextHolder.getContext().setAuthentication(auth);
+                if (sub == null || role == null) {
+                    chain.doFilter(req, res);
+                    return;
                 }
+
+                long userId = Long.parseLong(sub);
+
+                var authentication = new UsernamePasswordAuthenticationToken(
+                        userId,
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                );
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (Exception e) {
                 log.debug("JWT parse failed: {}", e.getMessage());
             }

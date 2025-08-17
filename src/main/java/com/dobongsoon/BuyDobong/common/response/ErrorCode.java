@@ -23,7 +23,9 @@ public enum ErrorCode {
     /**
      * 403 FORBIDDEN - 권한 없음
      */
-
+    FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
+    MERCHANT_ONLY(HttpStatus.FORBIDDEN, "상점 등록은 상인만 가능합니다."),
+    STORE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 상점을 등록했습니다."),
 
 
     /**
