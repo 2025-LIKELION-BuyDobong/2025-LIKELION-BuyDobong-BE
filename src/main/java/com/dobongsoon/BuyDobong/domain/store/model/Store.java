@@ -3,6 +3,8 @@ package com.dobongsoon.BuyDobong.domain.store.model;
 import com.dobongsoon.BuyDobong.domain.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,7 +37,8 @@ public class Store {
     private String name;
 
     @Column(nullable = false)
-    private String address;
+    @Enumerated(EnumType.STRING)
+    private MarketName market;
 
     @Column(nullable = false)
     private double latitude;
@@ -55,11 +58,11 @@ public class Store {
 
     @Builder
     private Store(User user, String name,
-                  String address, Double latitude, Double longitude,
+                  MarketName market, Double latitude, Double longitude,
                   String imageUrl) {
         this.user = user;
         this.name = name;
-        this.address = address;
+        this.market = market;
         this.latitude = latitude;
         this.longitude = longitude;
         this.imageUrl = imageUrl;

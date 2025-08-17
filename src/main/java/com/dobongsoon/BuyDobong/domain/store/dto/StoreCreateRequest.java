@@ -1,5 +1,6 @@
 package com.dobongsoon.BuyDobong.domain.store.dto;
 
+import com.dobongsoon.BuyDobong.domain.store.model.MarketName;
 import lombok.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,8 +16,8 @@ public class StoreCreateRequest {
     @NotBlank
     private String name;
 
-    @NotBlank
-    private String address;
+    @NotNull
+    private MarketName market;
 
     @NotNull
     @DecimalMin("-90.0")
