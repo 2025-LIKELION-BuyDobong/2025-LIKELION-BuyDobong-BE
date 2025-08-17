@@ -52,6 +52,12 @@ public class Product {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // 특가
+
+    private Long dealPrice;
+    private LocalDateTime dealStartAt;
+    private LocalDateTime dealEndAt;
+
     public static Product create(Store store, String name, Long regularPrice, String unit, StockLevel stockLevel) {
         return Product.builder()
                 .store(store)
@@ -60,5 +66,29 @@ public class Product {
                 .unit(unit)
                 .stockLevel(stockLevel)
                 .build();
+    }
+
+    public void applyDeal(Long price, LocalDateTime startAt, LocalDateTime endAt) {
+        this.dealPrice = price;
+        this.dealStartAt = startAt;
+        this.dealEndAt = endAt;
+    }
+
+    public void clearDeal() {
+        this.dealPrice = null;
+        this.dealStartAt = null;
+        this.dealEndAt = null;
+    }
+
+    public boolean isDealActive(LocalDateTime now) {
+        return dealPrice != null
+                && dealStartAt != null
+                && dealEndAt != null
+                && now.isAfter(dealStartAt)
+                && now.isBefore(dealEndAt);
+    }
+
+    public Long getDisplayPrice(LocalDateTime now) {
+        return isDealActive(now) ? this.dealPrice  : this.regularPrice;
     }
 }

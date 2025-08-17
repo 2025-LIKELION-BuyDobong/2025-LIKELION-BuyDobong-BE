@@ -3,6 +3,8 @@ package com.dobongsoon.BuyDobong.domain.product.dto;
 import com.dobongsoon.BuyDobong.domain.product.model.StockLevel;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -15,4 +17,12 @@ public class ProductResponse {
     private Long regularPrice;
     private String unit;
     private StockLevel stockLevel;
+    private LocalDateTime createdAt;
+
+    // 특가
+    private Long dealPrice;
+    private LocalDateTime dealStartAt;
+    private LocalDateTime dealEndAt;
+
+    private Long displayPrice;
 }
