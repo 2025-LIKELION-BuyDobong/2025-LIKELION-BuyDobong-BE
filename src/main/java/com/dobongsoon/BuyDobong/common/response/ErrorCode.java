@@ -11,7 +11,9 @@ public enum ErrorCode {
      * 400 BAD_REQUEST - 잘못된 요청
      */
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
-
+    INVALID_PRICE(HttpStatus.BAD_REQUEST, "잘못된 가격입니다."),
+    INVALID_PERIOD(HttpStatus.BAD_REQUEST, "잘못된 기간입니다."),
+    
     /**
      * 401 UNAUTHORIZED - 인증 실패
      */
@@ -25,7 +27,6 @@ public enum ErrorCode {
      */
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     MERCHANT_ONLY(HttpStatus.FORBIDDEN, "상점 등록은 상인만 가능합니다."),
-    STORE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 상점을 등록했습니다."),
 
 
     /**
@@ -44,6 +45,9 @@ public enum ErrorCode {
      * 409 CONFLICT - 요청 충돌
      */
     DUPLICATE_USERNAME(HttpStatus.CONFLICT, "중복된 닉네임입니다. 다른 닉네임을 입력해주세요."),
+    STORE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 상점을 등록했습니다."),
+    PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록한 상품입니다."),
+
 
     /**
      * 500 INTERNAL_SERVER_ERROR - 서버 내부 오류
