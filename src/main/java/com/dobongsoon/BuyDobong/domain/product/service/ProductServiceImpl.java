@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -104,5 +105,34 @@ public class ProductServiceImpl implements ProductService {
                 .dealEndAt(product.getDealEndAt())
                 .displayPrice(product.getDisplayPrice(now))
                 .build();
+    }
+
+    @Override
+    public List<ProductResponse> getMyProducts(Long userId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        storeRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        LocalDateTime now = LocalDateTime.now();
+
+        return productRepository.findByStore_User_IdOrderByCreatedAtDesc(userId).stream()
+                .map(p -> ProductResponse.builder()
+                        .id(p.getId())
+                        .storeId(p.getStore().getId())
+                        .name(p.getName())
+                        .regularPrice(p.getRegularPrice())
+                        .unit(p.getUnit())
+                        .stockLevel(p.getStockLevel())
+                        .createdAt(p.getCreatedAt())
+                        .dealPrice(p.getDealPrice())
+                        .dealStartAt(p.getDealStartAt())
+                        .dealEndAt(p.getDealEndAt())
+                        .displayPrice(p.getDisplayPrice(now))
+                        .build()
+                ).toList();
+
     }
 }
