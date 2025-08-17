@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 public class StoreResponse {
     private Long id;
     private String name;
-    private String address;
+    private String market;      // ex) SINDOBONT
+    private String marketLabel; // ex) 신도봉시장
     private Double latitude;
     private Double longitude;
     private String imageUrl;
@@ -22,7 +23,8 @@ public class StoreResponse {
         return StoreResponse.builder()
                 .id(store.getId())
                 .name(store.getName())
-                .address(store.getAddress())
+                .market(store.getMarket().name())
+                .marketLabel(store.getMarket().getLabel())
                 .latitude(store.getLatitude())
                 .longitude(store.getLongitude())
                 .imageUrl(store.getImageUrl())

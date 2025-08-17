@@ -36,7 +36,7 @@ public class StoreServiceImpl implements StoreService {
         Store store = Store.builder()
                 .user(user)
                 .name(request.getName())
-                .address(request.getAddress())
+                .market(request.getMarket())
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .imageUrl(request.getImageUrl())
