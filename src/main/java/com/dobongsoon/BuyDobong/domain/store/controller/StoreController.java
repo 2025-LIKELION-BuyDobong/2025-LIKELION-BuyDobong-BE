@@ -39,4 +39,14 @@ public class StoreController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(storeService.register(userId, storeCreateRequest));
     }
+
+    @PostMapping("/me")
+    @PreAuthorize("hasRole('MERCHANT')")
+    public ResponseEntity<StoreResponse> getMyStore(@AuthenticationPrincipal Long userId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(storeService.getMyStore(userId));
+    }
 }

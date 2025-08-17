@@ -48,4 +48,15 @@ public class StoreServiceImpl implements StoreService {
             throw new BusinessException(ErrorCode.STORE_ALREADY_EXISTS);
         }
     }
+
+    @Override
+    public StoreResponse getMyStore(Long userId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Store store = storeRepository.findByUser_Id(userId).orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        return StoreResponse.from(store);
+    }
 }
