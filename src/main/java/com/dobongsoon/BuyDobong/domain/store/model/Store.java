@@ -65,4 +65,8 @@ public class Store {
         this.imageUrl = imageUrl;
         this.open = false; // 기본값으로 false 설정
     }
+
+    public void changeOpen(boolean open) {
+        this.open = open;
+    }
 }

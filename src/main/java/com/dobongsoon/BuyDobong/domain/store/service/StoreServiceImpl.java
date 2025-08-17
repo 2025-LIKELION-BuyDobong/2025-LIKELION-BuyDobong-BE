@@ -59,4 +59,17 @@ public class StoreServiceImpl implements StoreService {
 
         return StoreResponse.from(store);
     }
+
+    @Override
+    public StoreResponse openMyStore(Long userId, boolean open) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Store store = storeRepository.findByUser_Id(userId).orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        store.changeOpen(open);
+
+        return StoreResponse.from(store);
+    }
 }
