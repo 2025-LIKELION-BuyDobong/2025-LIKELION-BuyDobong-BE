@@ -186,4 +186,16 @@ public class ProductServiceImpl implements ProductService {
                 .map(p -> toResponse(p, now))
                 .toList();
     }
+
+    @Override
+    public void delete(Long userId, Long productId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Product product = productRepository.findByIdAndStore_User_Id(productId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        productRepository.delete(product);
+    };
 }
