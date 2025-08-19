@@ -11,16 +11,13 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDealRequest {
-    @NotNull
+public class ProductDealUpdateRequest {
     @Min(0)
     private Long dealPrice;
 
     private String dealUnit;
 
-    @NotNull
     private LocalDateTime dealStartAt;
 
-    @NotNull
     private LocalDateTime dealEndAt;
 }

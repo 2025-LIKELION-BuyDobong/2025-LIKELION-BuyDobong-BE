@@ -15,14 +15,18 @@ public class ProductResponse {
     private Long storeId;
     private String name;
     private Long regularPrice;
-    private String unit;
+    private String regularUnit;
     private StockLevel stockLevel;
     private LocalDateTime createdAt;
 
     // 특가
     private Long dealPrice;
+    private String dealUnit;
     private LocalDateTime dealStartAt;
     private LocalDateTime dealEndAt;
 
     private Long displayPrice;
+    private String displayUnit;
+
+    private boolean hidden;
 }

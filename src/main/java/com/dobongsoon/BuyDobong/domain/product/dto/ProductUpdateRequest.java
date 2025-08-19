@@ -11,18 +11,14 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductCreateRequest {
+public class ProductUpdateRequest {
 
-    @NotBlank
     private String name;
 
-    @NotNull
     @Min(0)
     private Long regularPrice;
 
-    @NotBlank
     private String regularUnit;
 
-    @NotNull
     private StockLevel stockLevel;
 }
