@@ -1,7 +1,9 @@
 package com.dobongsoon.BuyDobong.domain.product.repository;
 
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
+import com.dobongsoon.BuyDobong.domain.store.model.MarketName;
 import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,4 +17,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     // 상점 상세 조회 시 사용하는 전체 조회 (숨김 제외)
     List<Product> findByStore_IdAndHiddenFalse(Long storeId);
+
+    // 키워드 검색 시 사용하는 조회
+    @EntityGraph(attributePaths = "store")
+    @Query("""
+       select p
+         from Product p
+        where p.hidden = false
+          and (
+               lower(p.name) like lower(concat('%', :q, '%'))
+            or lower(p.store.name) like lower(concat('%', :q, '%'))
+          )
+          and (:markets is null or p.store.market in :markets)
+    """)
+    List<Product> search(@Param("q") String keyword,
+                         @Param("markets") List<MarketName> markets);
 }

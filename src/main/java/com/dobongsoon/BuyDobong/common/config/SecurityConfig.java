@@ -29,7 +29,8 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/api/auth/**",
                                 "/api/sms/**",
-                                "/api/auth/**"
+                       ㅎ         "/api/auth/**",
+                                "/api/search/**"
                         ).permitAll()
                         // ✅ 공개: 소비자용 상점 상세
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/store/*/detail").permitAll()
