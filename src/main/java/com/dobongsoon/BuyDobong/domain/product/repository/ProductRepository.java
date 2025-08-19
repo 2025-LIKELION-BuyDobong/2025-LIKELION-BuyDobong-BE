@@ -12,4 +12,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByStore_User_IdOrderByCreatedAtDesc(Long userId);
     // 수정 시 사용하는 중복 조회 (본인 제외)
     boolean existsByStore_IdAndNameAndIdNot(Long storeId, String name, Long id);
+
+    // 상점 상세 조회 시 사용하는 전체 조회 (숨김 제외)
+    List<Product> findByStore_IdAndHiddenFalse(Long storeId);
 }

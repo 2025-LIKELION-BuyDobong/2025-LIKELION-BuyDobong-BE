@@ -5,6 +5,7 @@ import com.dobongsoon.BuyDobong.common.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,6 +31,10 @@ public class SecurityConfig {
                                 "/api/sms/**",
                                 "/api/auth/**"
                         ).permitAll()
+                        // ✅ 공개: 소비자용 상점 상세
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/store/*/detail").permitAll()
+                        // 필요하면 검색/리스트도 공개
+                        .requestMatchers(HttpMethod.GET, "/api/store/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

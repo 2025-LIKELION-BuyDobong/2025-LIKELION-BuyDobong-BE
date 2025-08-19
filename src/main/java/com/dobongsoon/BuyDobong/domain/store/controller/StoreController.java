@@ -3,22 +3,19 @@ package com.dobongsoon.BuyDobong.domain.store.controller;
 import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreCreateRequest;
+import com.dobongsoon.BuyDobong.domain.store.dto.StoreDetailDto;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreOpenRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreResponse;
+import com.dobongsoon.BuyDobong.domain.store.service.StoreQueryService;
 import com.dobongsoon.BuyDobong.domain.store.service.StoreService;
 import jakarta.validation.Valid;
-import lombok.Value;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class StoreController {
 
     private final StoreService storeService;
+    private final StoreQueryService storeQueryService;
 
     @PostMapping
     @PreAuthorize("hasRole('MERCHANT')")
@@ -64,5 +62,11 @@ public class StoreController {
         }
 
         return ResponseEntity.ok(storeService.openMyStore(userId, storeOpenRequest.getOpen()));
+    }
+
+    @GetMapping("/{storeId}/detail")
+    public ResponseEntity<StoreDetailDto> getDetail(@PathVariable("storeId") Long storeId) {
+        StoreDetailDto dto = storeQueryService.getStoreDetail(storeId);
+        return ResponseEntity.ok(dto);
     }
 }
