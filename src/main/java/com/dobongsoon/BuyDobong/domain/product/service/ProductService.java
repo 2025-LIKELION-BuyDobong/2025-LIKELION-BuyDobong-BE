@@ -12,6 +12,7 @@ public interface ProductService {
     ProductResponse deal(Long userId, Long productId, ProductDealRequest request);
     ProductResponse hide(Long userId, Long productId, boolean hidden);
     ProductResponse update(Long userId, Long productId, ProductUpdateRequest request);
+    ProductResponse endDeal(Long userId, Long productId);
 
     List<ProductResponse> getMyProducts(Long userId);
 

@@ -109,4 +109,19 @@ public class Product {
     public void changeHidden(boolean hidden) { this.hidden = hidden; }
     public void hide()   { this.hidden = true; }
     public void unhide() { this.hidden = false; }
+
+    public void endDealNow(LocalDateTime now) {
+        if (dealStartAt == null || dealEndAt == null) {
+            this.dealActive = false;
+            return;
+        }
+
+        if(!now.isBefore(dealEndAt)) {
+            this.dealActive = false;
+            return;
+        }
+
+        this.dealEndAt = now;
+        this.dealActive = false;
+    }
 }

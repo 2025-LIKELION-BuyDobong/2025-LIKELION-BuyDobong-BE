@@ -63,6 +63,19 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PatchMapping("/{productId}/deal/end")
+    @PreAuthorize("hasRole('MERCHANT')")
+    public ResponseEntity<ProductResponse> endDeal(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long productId
+    ) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(productService.endDeal(userId, productId));
+    }
+
     @PostMapping("/{productId}/hide")
     @PreAuthorize("hasRole('MERCHANT')")
     public ResponseEntity<ProductResponse> hideProduct(

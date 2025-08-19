@@ -171,6 +171,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public ProductResponse endDeal(Long userId, Long productId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Product product = productRepository.findByIdAndStore_User_Id(productId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        LocalDateTime now = LocalDateTime.now();
+        product.endDealNow(now);
+
+        return toResponse(product, now);
+    }
+
+    @Override
     public List<ProductResponse> getMyProducts(Long userId) {
         if (userId == null) {
             throw new BusinessException(ErrorCode.USER_NOT_FOUND);
