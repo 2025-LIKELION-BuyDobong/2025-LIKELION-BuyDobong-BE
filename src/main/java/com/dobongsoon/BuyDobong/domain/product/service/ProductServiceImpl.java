@@ -4,6 +4,7 @@ import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductCreateRequest;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductDealRequest;
+import com.dobongsoon.BuyDobong.domain.product.dto.ProductDealUpdateRequest;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductResponse;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductUpdateRequest;
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
@@ -166,6 +167,30 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
 
         product.changeHidden(hidden);
+
+        return toResponse(product);
+    }
+
+    @Override
+    public ProductResponse updateDeal(Long userId, Long productId, ProductDealUpdateRequest productDealUpdateRequest) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Product product = productRepository.findByIdAndStore_User_Id(productId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        Long updatePrice = (productDealUpdateRequest.getDealPrice() != null) ? productDealUpdateRequest.getDealPrice().longValue() : product.getDealPrice();
+        String updateUnit = (productDealUpdateRequest.getDealUnit() != null) ? productDealUpdateRequest.getDealUnit().trim() : product.getDealUnit();
+
+        LocalDateTime dealStart = (productDealUpdateRequest.getDealStartAt() != null) ? productDealUpdateRequest.getDealStartAt() : product.getDealStartAt();
+        LocalDateTime dealEnd = (productDealUpdateRequest.getDealEndAt() != null) ? productDealUpdateRequest.getDealEndAt() : product.getDealEndAt();
+
+        if (updatePrice < 0) throw new BusinessException(ErrorCode.INVALID_PRICE);
+        if (updatePrice > product.getRegularPrice()) throw new BusinessException(ErrorCode.INVALID_PRICE);
+        if (!dealStart.isBefore(dealEnd)) throw new BusinessException(ErrorCode.BAD_REQUEST);
+
+        product.applyDeal(updatePrice, updateUnit, dealStart, dealEnd);
 
         return toResponse(product);
     }

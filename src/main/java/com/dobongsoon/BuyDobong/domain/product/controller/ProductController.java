@@ -4,6 +4,7 @@ import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductCreateRequest;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductDealRequest;
+import com.dobongsoon.BuyDobong.domain.product.dto.ProductDealUpdateRequest;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductHideRequest;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductResponse;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductUpdateRequest;
@@ -61,6 +62,21 @@ public class ProductController {
 
         ProductResponse response = productService.deal(userId, productId, productDealRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+
+    @PatchMapping("/{productId}/deal")
+    @PreAuthorize("hasRole('MERCHANT')")
+    public ResponseEntity<ProductResponse> updateDeal(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long productId,
+            @Valid @RequestBody ProductDealUpdateRequest productDealUpdateRequestroductDealUpdateRequest
+    ) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(productService.updateDeal(userId, productId, productDealUpdateRequestroductDealUpdateRequest));
     }
 
     @PatchMapping("/{productId}/deal/end")
