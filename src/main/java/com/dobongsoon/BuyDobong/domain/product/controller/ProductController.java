@@ -4,6 +4,7 @@ import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductCreateRequest;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductDealRequest;
+import com.dobongsoon.BuyDobong.domain.product.dto.ProductHideRequest;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductResponse;
 import com.dobongsoon.BuyDobong.domain.product.service.ProductService;
 import jakarta.validation.Valid;
@@ -55,6 +56,21 @@ public class ProductController {
 
         ProductResponse response = productService.deal(userId, productId, productDealRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/{productId}/hide")
+    @PreAuthorize("hasRole('MERCHANT')")
+    public ResponseEntity<ProductResponse> hideProduct(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long productId,
+            @Valid @RequestBody ProductHideRequest productHideRequest
+    ) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        ProductResponse response = productService.hide(userId, productId, productHideRequest.getHidden());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/me")

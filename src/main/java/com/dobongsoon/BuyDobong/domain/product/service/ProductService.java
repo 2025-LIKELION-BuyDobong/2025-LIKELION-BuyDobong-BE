@@ -9,5 +9,6 @@ import java.util.List;
 public interface ProductService {
     ProductResponse create(Long userId, ProductCreateRequest request);
     ProductResponse deal(Long userId, Long productId, ProductDealRequest request);
+    ProductResponse hide(Long userId, Long productId, boolean hidden);
     List<ProductResponse> getMyProducts(Long userId);
 }

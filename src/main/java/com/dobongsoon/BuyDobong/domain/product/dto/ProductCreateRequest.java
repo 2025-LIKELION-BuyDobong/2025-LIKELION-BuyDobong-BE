@@ -21,7 +21,7 @@ public class ProductCreateRequest {
     private Long regularPrice;
 
     @NotBlank
-    private String unit;
+    private String regularUnit;
 
     @NotNull
     private StockLevel stockLevel;

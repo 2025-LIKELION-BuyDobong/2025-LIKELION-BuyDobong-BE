@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
                 store,
                 productCreateRequest.getName(),
                 productCreateRequest.getRegularPrice(),
-                productCreateRequest.getUnit(),
+                productCreateRequest.getRegularUnit(),
                 productCreateRequest.getStockLevel()
         );
 
@@ -52,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
                 .storeId(store.getId())
                 .name(savedProduct.getName())
                 .regularPrice(savedProduct.getRegularPrice())
-                .unit(savedProduct.getUnit())
+                .regularUnit(savedProduct.getRegularUnit())
                 .stockLevel(savedProduct.getStockLevel())
                 .createdAt(savedProduct.getCreatedAt())
                 .build();
@@ -86,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
             throw new BusinessException(ErrorCode.INVALID_PERIOD);
         }
 
-        product.applyDeal(productDealRequest.getDealPrice(), productDealRequest.getDealStartAt(), productDealRequest.getDealEndAt());
+        product.applyDeal(productDealRequest.getDealPrice(), productDealRequest.getDealUnit(), productDealRequest.getDealStartAt(), productDealRequest.getDealEndAt());
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -97,13 +97,16 @@ public class ProductServiceImpl implements ProductService {
                 .storeId(product.getStore().getId())
                 .name(product.getName())
                 .regularPrice(product.getRegularPrice())
-                .unit(product.getUnit())
+                .regularUnit(product.getRegularUnit())
                 .stockLevel(product.getStockLevel())
                 .createdAt(product.getCreatedAt())
                 .dealPrice(product.getDealPrice())
+                .dealUnit(product.getDealUnit())
                 .dealStartAt(product.getDealStartAt())
                 .dealEndAt(product.getDealEndAt())
                 .displayPrice(product.getDisplayPrice(now))
+                .displayUnit(product.getDisplayUnit(now))
+                .hidden(product.isHidden())
                 .build();
     }
 
@@ -124,15 +127,47 @@ public class ProductServiceImpl implements ProductService {
                         .storeId(p.getStore().getId())
                         .name(p.getName())
                         .regularPrice(p.getRegularPrice())
-                        .unit(p.getUnit())
+                        .regularUnit(p.getRegularUnit())
                         .stockLevel(p.getStockLevel())
                         .createdAt(p.getCreatedAt())
                         .dealPrice(p.getDealPrice())
+                        .dealUnit(p.getDealUnit())
                         .dealStartAt(p.getDealStartAt())
                         .dealEndAt(p.getDealEndAt())
                         .displayPrice(p.getDisplayPrice(now))
+                        .displayUnit(p.getDisplayUnit(now))
+                        .hidden(p.isHidden())
                         .build()
                 ).toList();
+    }
 
+    @Override
+    public ProductResponse hide(Long userId, Long productId, boolean hidden) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Product product = productRepository.findByIdAndStore_User_Id(productId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        product.changeHidden(hidden);
+        var now = LocalDateTime.now();
+
+        return ProductResponse.builder()
+                .id(product.getId())
+                .storeId(product.getStore().getId())
+                .name(product.getName())
+                .regularPrice(product.getRegularPrice())
+                .regularUnit(product.getRegularUnit())
+                .stockLevel(product.getStockLevel())
+                .createdAt(product.getCreatedAt())
+                .dealPrice(product.getDealPrice())
+                .dealUnit(product.getDealUnit())
+                .dealStartAt(product.getDealStartAt())
+                .dealEndAt(product.getDealEndAt())
+                .displayPrice(product.getDisplayPrice(now))
+                .displayUnit(product.getDisplayUnit(now))
+                .hidden(product.isHidden())
+                .build();
     }
 }

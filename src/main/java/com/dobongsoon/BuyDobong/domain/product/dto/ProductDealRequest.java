@@ -16,6 +16,8 @@ public class ProductDealRequest {
     @Min(0)
     private Long dealPrice;
 
+    private String dealUnit;
+
     @NotNull
     private LocalDateTime dealStartAt;
 
