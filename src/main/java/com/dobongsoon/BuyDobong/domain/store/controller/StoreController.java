@@ -2,9 +2,7 @@ package com.dobongsoon.BuyDobong.domain.store.controller;
 
 import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
-import com.dobongsoon.BuyDobong.domain.consumer.service.ConsumerService;
+import com.dobongsoon.BuyDobong.domain.consumer.recent.service.RecentStoreService;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreCreateRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreDetailDto;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreOpenRequest;
@@ -21,8 +19,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 
-import java.security.Principal;
-
 @RestController
 @RequestMapping("/api/store")
 @RequiredArgsConstructor
@@ -30,8 +26,7 @@ public class StoreController {
 
     private final StoreService storeService;
     private final StoreQueryService storeQueryService;
-    private final ConsumerService consumerService;
-    private final ConsumerRepository consumerRepository;
+    private final RecentStoreService recentStoreService;
 
     @PostMapping
     @PreAuthorize("hasRole('MERCHANT')")
@@ -71,11 +66,18 @@ public class StoreController {
         return ResponseEntity.ok(storeService.openMyStore(userId, storeOpenRequest.getOpen()));
     }
 
+    // 상점 상세 조회
     @GetMapping("/{storeId}/detail/{consumerId}")
     public ResponseEntity<StoreDetailDto> getStoreDetail(
             @PathVariable Long storeId,
             @PathVariable(required = false) Long consumerId
     ) {
-        return ResponseEntity.ok(storeQueryService.getStoreDetail(storeId, consumerId));
+        StoreDetailDto dto = storeQueryService.getStoreDetail(storeId, consumerId);
+
+        if (consumerId != null) {
+            recentStoreService.add(consumerId, storeId);
+        }
+
+        return ResponseEntity.ok(dto);
     }
 }
