@@ -2,6 +2,7 @@ package com.dobongsoon.BuyDobong.domain.store.service;
 
 import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
+import com.dobongsoon.BuyDobong.domain.consumer.repository.FavoriteStoreRepository;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductDto;
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
 import com.dobongsoon.BuyDobong.domain.product.repository.ProductRepository;
@@ -23,8 +24,9 @@ public class StoreQueryService {
 
     private final StoreRepository storeRepository;
     private final ProductRepository productRepository;
+    private final FavoriteStoreRepository favoriteStoreRepository;
 
-    public StoreDetailDto getStoreDetail(Long storeId) {
+    public StoreDetailDto getStoreDetail(Long storeId, Long consumerId) {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
@@ -48,6 +50,11 @@ public class StoreQueryService {
                 .sorted(byName)
                 .toList();
 
-        return StoreDetailDto.of(store, deals, products);
+        boolean favorite = false;
+        if (consumerId != null) {
+            favorite = favoriteStoreRepository.existsByConsumer_IdAndStoreId(consumerId, storeId);
+        }
+
+        return StoreDetailDto.of(store, favorite, deals, products);
     }
 }
