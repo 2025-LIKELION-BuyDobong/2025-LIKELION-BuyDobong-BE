@@ -1,4 +1,4 @@
-package com.dobongsoon.BuyDobong.domain.search.dto;
+package com.dobongsoon.BuyDobong.domain.consumer.search.dto;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +11,7 @@ import java.util.List;
 public class SearchResponse {
     private StoreDto store;
     private List<ProductDto> products;
+    private Boolean interested;
 
     @Getter
     @Builder

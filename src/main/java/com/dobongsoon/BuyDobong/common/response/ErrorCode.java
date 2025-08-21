@@ -36,6 +36,7 @@ public enum ErrorCode {
     CONSUMER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 소비자를 찾을 수 없습니다."),
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "상점을 찾을 수 없습니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+    KEYWORD_NOT_FOUND(HttpStatus.NOT_FOUND, "키워드를 찾을 수 없습니다."),
 
     /**
      * 406 NOT_ACCEPTABLE - 허용되지 않는 요청 형식
@@ -49,6 +50,7 @@ public enum ErrorCode {
     STORE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 상점을 등록했습니다."),
     PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록한 상품입니다."),
     FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 관심 상점으로 등록되었습니다."),
+    KEYWORD_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 키워드입니다."),
 
     /**
      * 500 INTERNAL_SERVER_ERROR - 서버 내부 오류
