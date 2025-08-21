@@ -10,6 +10,7 @@ import com.dobongsoon.BuyDobong.domain.product.dto.ProductResponse;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductUpdateRequest;
 import com.dobongsoon.BuyDobong.domain.product.service.ProductService;
 import com.dobongsoon.BuyDobong.domain.user.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,7 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "상품 등록")
     public ResponseEntity<ProductResponse> createProduct(
             @AuthenticationPrincipal Long userId,
             @Valid @RequestBody ProductCreateRequest productCreateRequest
@@ -51,6 +53,7 @@ public class ProductController {
 
     @PostMapping("/{productId}/deal")
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "특가 등록")
     public ResponseEntity<ProductResponse> dealProduct(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long productId,
@@ -67,6 +70,7 @@ public class ProductController {
 
     @PatchMapping("/{productId}/deal")
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "특가 수정")
     public ResponseEntity<ProductResponse> updateDeal(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long productId,
@@ -81,6 +85,7 @@ public class ProductController {
 
     @PatchMapping("/{productId}/deal/end")
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "특가 즉시 종료")
     public ResponseEntity<ProductResponse> endDeal(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long productId
@@ -94,6 +99,7 @@ public class ProductController {
 
     @PostMapping("/{productId}/hide")
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "상품 숨기기")
     public ResponseEntity<ProductResponse> hideProduct(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long productId,
@@ -109,6 +115,7 @@ public class ProductController {
 
     @PatchMapping("/{productId}")
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "상품 수정")
     public ResponseEntity<ProductResponse> updateProduct(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long productId,
@@ -124,6 +131,7 @@ public class ProductController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "내 상품 조회")
     public ResponseEntity<List<ProductResponse>> listMyProducts(
             @AuthenticationPrincipal Long userId
     ) {
@@ -136,6 +144,7 @@ public class ProductController {
 
     @DeleteMapping("/{productid}")
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "상품 삭제")
     public ResponseEntity<ProductResponse> deleteProduct(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long productid
