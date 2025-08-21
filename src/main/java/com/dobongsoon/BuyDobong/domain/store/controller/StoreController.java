@@ -9,6 +9,7 @@ import com.dobongsoon.BuyDobong.domain.store.dto.StoreOpenRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreResponse;
 import com.dobongsoon.BuyDobong.domain.store.service.StoreQueryService;
 import com.dobongsoon.BuyDobong.domain.store.service.StoreService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,7 @@ public class StoreController {
 
     @PostMapping
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "상점 등록")
     public ResponseEntity<StoreResponse> createStore(
             @AuthenticationPrincipal Long userId,
             Authentication authentication,
@@ -45,6 +47,7 @@ public class StoreController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "내 상점 조회")
     public ResponseEntity<StoreResponse> getMyStore(@AuthenticationPrincipal Long userId) {
         if (userId == null) {
             throw new BusinessException(ErrorCode.USER_NOT_FOUND);
@@ -55,6 +58,7 @@ public class StoreController {
 
     @PostMapping("/open")
     @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "영업 ON/OFF")
     public ResponseEntity<StoreResponse> openStore(
             @AuthenticationPrincipal Long userId,
             @Valid @RequestBody StoreOpenRequest storeOpenRequest
