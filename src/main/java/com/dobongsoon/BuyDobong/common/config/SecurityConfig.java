@@ -30,7 +30,6 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/api/sms/**",
                                 "/api/auth/**",
-                                "/api/search/**",
                                 "/api/consumer/**",
                                 "/api/store/*/detail/*"
                         ).permitAll()
