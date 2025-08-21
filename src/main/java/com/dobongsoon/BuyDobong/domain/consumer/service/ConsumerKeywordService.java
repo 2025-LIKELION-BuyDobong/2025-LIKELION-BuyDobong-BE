@@ -56,7 +56,6 @@ public class ConsumerKeywordService {
 
     // 관심 키워드 삭제
     public void remove(Long consumerId, Long keywordId) {
-        // 존재 확인 (없으면 404)
         ConsumerKeyword row = consumerKeywordRepository.findByConsumer_IdAndKeyword_Id(consumerId, keywordId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.KEYWORD_NOT_FOUND));
 

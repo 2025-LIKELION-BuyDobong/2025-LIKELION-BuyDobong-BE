@@ -37,6 +37,8 @@ public enum ErrorCode {
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "상점을 찾을 수 없습니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
     KEYWORD_NOT_FOUND(HttpStatus.NOT_FOUND, "키워드를 찾을 수 없습니다."),
+    RECENT_NOT_FOUND(HttpStatus.NOT_FOUND, "최근 본 상점을 찾을 수 없습니다."),
+
 
     /**
      * 406 NOT_ACCEPTABLE - 허용되지 않는 요청 형식
