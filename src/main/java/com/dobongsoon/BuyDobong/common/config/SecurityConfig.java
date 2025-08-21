@@ -29,14 +29,11 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/api/auth/**",
                                 "/api/sms/**",
-                       ㅎ         "/api/auth/**",
+                                "/api/auth/**",
                                 "/api/search/**"
                         ).permitAll()
                         // ✅ 공개: 소비자용 상점 상세
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/store/*/detail").permitAll()
-                        // 필요하면 검색/리스트도 공개
-                        .requestMatchers(HttpMethod.GET, "/api/store/**").permitAll()
-                        .anyRequest().authenticated()
                 );
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
