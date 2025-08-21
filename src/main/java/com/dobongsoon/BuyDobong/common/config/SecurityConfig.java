@@ -29,12 +29,9 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/api/auth/**",
                                 "/api/sms/**",
-                                "/api/auth/**",
                                 "/api/consumer/**",
                                 "/api/store/*/detail/*"
                         ).permitAll()
-                        // 소비자용 상점 상세 조회
-                        //.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/store/*/detail").permitAll()
                 );
 
         http.addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
