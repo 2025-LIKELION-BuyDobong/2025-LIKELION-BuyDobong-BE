@@ -25,7 +25,7 @@ public class ConsumerPreference {
     private Long userId;
 
     @Column(name="push_enabled", nullable = false)
-    private boolean pushEnabled; // 기본 true 권장
+    private boolean pushEnabled;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

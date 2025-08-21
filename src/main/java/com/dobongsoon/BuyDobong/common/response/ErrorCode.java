@@ -33,6 +33,7 @@ public enum ErrorCode {
      * 404 NOT_FOUND - 요청한 리소스를 찾을 수 없음
      */
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
+    CONSUMER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 소비자를 찾을 수 없습니다."),
     STORE_NOT_FOUND(HttpStatus.NOT_FOUND, "상점을 찾을 수 없습니다."),
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
 
@@ -47,7 +48,7 @@ public enum ErrorCode {
     DUPLICATE_USERNAME(HttpStatus.CONFLICT, "중복된 닉네임입니다. 다른 닉네임을 입력해주세요."),
     STORE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 상점을 등록했습니다."),
     PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록한 상품입니다."),
-
+    FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 관심 상점으로 등록되었습니다."),
 
     /**
      * 500 INTERNAL_SERVER_ERROR - 서버 내부 오류

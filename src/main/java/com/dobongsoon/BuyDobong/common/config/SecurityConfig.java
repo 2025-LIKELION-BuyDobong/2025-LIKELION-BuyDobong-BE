@@ -30,9 +30,10 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/api/sms/**",
                                 "/api/auth/**",
-                                "/api/search/**"
+                                "/api/search/**",
+                                "/api/consumer/**"
                         ).permitAll()
-                        // ✅ 공개: 소비자용 상점 상세
+                        // 소비자용 상점 상세 조회
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/store/*/detail").permitAll()
                 );
 
