@@ -1,0 +1,18 @@
+# VCS/IDE
+.git
+.gitignore
+*.iml
+.idea
+.vscode
+
+# 빌드 결과물
+build
+target
+out
+.gradle
+logs
+*.log
+
+# 기타 불필요
+.DS_Store
+node_modules
