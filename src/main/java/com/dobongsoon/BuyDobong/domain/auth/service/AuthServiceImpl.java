@@ -69,6 +69,7 @@ public class AuthServiceImpl implements AuthService {
 
         return AuthResponse.builder()
                 .accessToken(jwtProvider.createAccessToken(user))
+                .role(user.getRole())
                 .build();
     }
 
@@ -83,6 +84,7 @@ public class AuthServiceImpl implements AuthService {
 
         return AuthResponse.builder()
                 .accessToken(jwtProvider.createAccessToken(user))
+                .role(user.getRole())
                 .build();
     }
 }
