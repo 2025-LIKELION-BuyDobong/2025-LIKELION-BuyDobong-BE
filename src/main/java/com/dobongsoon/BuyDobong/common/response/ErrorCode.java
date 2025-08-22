@@ -13,6 +13,7 @@ public enum ErrorCode {
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
     INVALID_PRICE(HttpStatus.BAD_REQUEST, "잘못된 가격입니다."),
     INVALID_PERIOD(HttpStatus.BAD_REQUEST, "잘못된 기간입니다."),
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "잘못된 값입니다."),
     
     /**
      * 401 UNAUTHORIZED - 인증 실패
