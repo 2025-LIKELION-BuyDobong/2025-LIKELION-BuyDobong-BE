@@ -6,12 +6,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -33,6 +36,7 @@ public class SecurityConfig {
                                 "/api/consumer/**",
                                 "/api/store/*/detail/*"
                         ).permitAll()
+                        .anyRequest().authenticated()
                         // 소비자용 상점 상세 조회
                         //.requestMatchers(org.springframework.http.HttpMethod.GET, "/api/store/*/detail").permitAll()
                 );

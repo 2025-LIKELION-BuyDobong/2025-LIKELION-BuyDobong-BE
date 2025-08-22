@@ -2,6 +2,7 @@ package com.dobongsoon.BuyDobong.domain.store.controller;
 
 import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
+import com.dobongsoon.BuyDobong.common.s3.S3Service;
 import com.dobongsoon.BuyDobong.domain.consumer.recent.service.RecentStoreService;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreCreateRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreDetailDto;
@@ -19,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/store")
@@ -28,6 +30,18 @@ public class StoreController {
     private final StoreService storeService;
     private final StoreQueryService storeQueryService;
     private final RecentStoreService recentStoreService;
+    private final S3Service s3Service;
+
+    @PostMapping(consumes = {"multipart/form-data"})
+    @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "상점 이미지 업로드")
+    public ResponseEntity<String> uploadStoreImage(
+            @AuthenticationPrincipal Long userId,
+            @RequestPart("file") MultipartFile file
+    ) {
+        String url = s3Service.uploadStoreImage(userId, file);
+        return ResponseEntity.ok(url);
+    }
 
     @PostMapping
     @PreAuthorize("hasRole('MERCHANT')")
