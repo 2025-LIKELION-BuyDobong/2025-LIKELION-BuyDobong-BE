@@ -84,7 +84,17 @@ public class StoreController {
         return ResponseEntity.ok(storeService.openMyStore(userId, storeOpenRequest.getOpen()));
     }
 
-    // 상점 상세 조회
+    @Operation(
+            summary = "상점 상세 조회",
+            description = """
+        특정 상점의 상세 정보를 조회합니다.
+        - 인증: Consumer
+        - 요청:
+          - storeId: 상점 ID
+          - consumerId: 소비자 ID
+        - 응답: 상점 상세 정보 (id, name, market, open, favorite, products, deals 등)
+        """
+    )
     @GetMapping("/{storeId}/detail/{consumerId}")
     public ResponseEntity<StoreDetailDto> getStoreDetail(
             @PathVariable Long storeId,
