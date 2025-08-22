@@ -68,6 +68,14 @@ public class Store {
         this.open = false; // 기본값으로 false 설정
     }
 
+    public void updateStore(String name, MarketName market, Double latitude, Double longitude, String imageUrl) {
+        this.name = name;
+        this.market = market;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.imageUrl = imageUrl;
+    }
+
     public void changeOpen(boolean open) {
         this.open = open;
     }

@@ -4,10 +4,14 @@ import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.common.s3.S3Service;
 import com.dobongsoon.BuyDobong.domain.consumer.recent.service.RecentStoreService;
+import com.dobongsoon.BuyDobong.domain.product.dto.ProductResponse;
+import com.dobongsoon.BuyDobong.domain.product.dto.ProductUpdateRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreCreateRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreDetailDto;
+import com.dobongsoon.BuyDobong.domain.store.dto.StoreImageUploadResponse;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreOpenRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreResponse;
+import com.dobongsoon.BuyDobong.domain.store.dto.StoreUpdateRequest;
 import com.dobongsoon.BuyDobong.domain.store.service.StoreQueryService;
 import com.dobongsoon.BuyDobong.domain.store.service.StoreService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,15 +36,15 @@ public class StoreController {
     private final RecentStoreService recentStoreService;
     private final S3Service s3Service;
 
-    @PostMapping(consumes = {"multipart/form-data"})
+    @PostMapping(value = "/image", consumes = "multipart/form-data")
     @PreAuthorize("hasRole('MERCHANT')")
     @Operation(summary = "상점 이미지 업로드")
-    public ResponseEntity<String> uploadStoreImage(
+    public ResponseEntity<StoreImageUploadResponse> uploadStoreImage(
             @AuthenticationPrincipal Long userId,
             @RequestPart("file") MultipartFile file
     ) {
         String url = s3Service.uploadStoreImage(userId, file);
-        return ResponseEntity.ok(url);
+        return ResponseEntity.ok(new StoreImageUploadResponse(url));
     }
 
     @PostMapping
@@ -57,6 +61,21 @@ public class StoreController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(storeService.register(userId, storeCreateRequest));
+    }
+
+    @PatchMapping("/{storeId}")
+    @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "상점 수정")
+    public ResponseEntity<StoreResponse> updateStore(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody StoreUpdateRequest storeUpdateRequest
+    ) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        StoreResponse response = storeService.update(userId, storeUpdateRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/me")
