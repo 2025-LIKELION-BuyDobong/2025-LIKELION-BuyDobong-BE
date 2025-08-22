@@ -46,7 +46,6 @@ public class Store {
     @Column(nullable = false)
     private double longitude;
 
-    @Column(nullable = false)
     private String imageUrl;
 
     @Column(nullable = false)
