@@ -37,33 +37,6 @@ public class StoreController {
     private final RecentStoreService recentStoreService;
     private final S3Service s3Service;
 
-//    @PostMapping(value = "/image", consumes = "multipart/form-data")
-//    @PreAuthorize("hasRole('MERCHANT')")
-//    @Operation(summary = "상점 이미지 업로드")
-//    public ResponseEntity<StoreImageUploadResponse> uploadStoreImage(
-//            @AuthenticationPrincipal Long userId,
-//            @RequestPart("file") MultipartFile file
-//    ) {
-//        String url = s3Service.uploadStoreImage(userId, file);
-//        return ResponseEntity.ok(new StoreImageUploadResponse(url));
-//    }
-//
-//    @PostMapping
-//    @PreAuthorize("hasRole('MERCHANT')")
-//    @Operation(summary = "상점 등록")
-//    public ResponseEntity<StoreResponse> createStore(
-//            @AuthenticationPrincipal Long userId,
-//            Authentication authentication,
-//            @Valid @RequestBody StoreCreateRequest storeCreateRequest
-//    ) {
-//        if (userId == null) {
-//            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-//        }
-//
-//        return ResponseEntity.status(HttpStatus.CREATED)
-//                .body(storeService.register(userId, storeCreateRequest));
-//    }
-
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MERCHANT')")
     @Operation(summary = "상점 등록 (이미지 + JSON 통합 버전)")
@@ -80,19 +53,26 @@ public class StoreController {
                 .body(storeService.register(userId, req));
     }
 
-    @PatchMapping("/{storeId}")
+    @PatchMapping(value = "/{storeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MERCHANT')")
-    @Operation(summary = "상점 수정")
+    @Operation(summary = "상점 수정 (이미지 + JSON 통합 버전)")
     public ResponseEntity<StoreResponse> updateStore(
             @AuthenticationPrincipal Long userId,
-            @Valid @RequestBody StoreUpdateRequest storeUpdateRequest
+            @PathVariable Long storeId,
+            @RequestPart("data") @Valid StoreUpdateRequest req,
+            @RequestPart(value = "image", required = false) MultipartFile image
     ) {
         if (userId == null) {
             throw new BusinessException(ErrorCode.USER_NOT_FOUND);
         }
 
-        StoreResponse response = storeService.update(userId, storeUpdateRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        if (image != null && !image.isEmpty()) {
+            String url = s3Service.uploadStoreImage(userId, image);
+            req.setImageUrl(url); // 업로드된 URL을 DTO에 주입
+        }
+
+        StoreResponse response = storeService.update(userId, req);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")
