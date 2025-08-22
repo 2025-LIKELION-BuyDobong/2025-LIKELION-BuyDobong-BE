@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -36,31 +37,47 @@ public class StoreController {
     private final RecentStoreService recentStoreService;
     private final S3Service s3Service;
 
-    @PostMapping(value = "/image", consumes = "multipart/form-data")
-    @PreAuthorize("hasRole('MERCHANT')")
-    @Operation(summary = "상점 이미지 업로드")
-    public ResponseEntity<StoreImageUploadResponse> uploadStoreImage(
-            @AuthenticationPrincipal Long userId,
-            @RequestPart("file") MultipartFile file
-    ) {
-        String url = s3Service.uploadStoreImage(userId, file);
-        return ResponseEntity.ok(new StoreImageUploadResponse(url));
-    }
+//    @PostMapping(value = "/image", consumes = "multipart/form-data")
+//    @PreAuthorize("hasRole('MERCHANT')")
+//    @Operation(summary = "상점 이미지 업로드")
+//    public ResponseEntity<StoreImageUploadResponse> uploadStoreImage(
+//            @AuthenticationPrincipal Long userId,
+//            @RequestPart("file") MultipartFile file
+//    ) {
+//        String url = s3Service.uploadStoreImage(userId, file);
+//        return ResponseEntity.ok(new StoreImageUploadResponse(url));
+//    }
+//
+//    @PostMapping
+//    @PreAuthorize("hasRole('MERCHANT')")
+//    @Operation(summary = "상점 등록")
+//    public ResponseEntity<StoreResponse> createStore(
+//            @AuthenticationPrincipal Long userId,
+//            Authentication authentication,
+//            @Valid @RequestBody StoreCreateRequest storeCreateRequest
+//    ) {
+//        if (userId == null) {
+//            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+//        }
+//
+//        return ResponseEntity.status(HttpStatus.CREATED)
+//                .body(storeService.register(userId, storeCreateRequest));
+//    }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('MERCHANT')")
-    @Operation(summary = "상점 등록")
-    public ResponseEntity<StoreResponse> createStore(
+    @Operation(summary = "상점 등록 (이미지 + JSON 통합 버전)")
+    public ResponseEntity<StoreResponse> createStoreMultipart(
             @AuthenticationPrincipal Long userId,
-            Authentication authentication,
-            @Valid @RequestBody StoreCreateRequest storeCreateRequest
+            @RequestPart("data") @Valid StoreCreateRequest req,
+            @RequestPart(value = "image", required = false) MultipartFile image
     ) {
-        if (userId == null) {
-            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        if (image != null && !image.isEmpty()) {
+            String url = s3Service.uploadStoreImage(userId, image);
+            req.setImageUrl(url);
         }
-
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(storeService.register(userId, storeCreateRequest));
+                .body(storeService.register(userId, req));
     }
 
     @PatchMapping("/{storeId}")
