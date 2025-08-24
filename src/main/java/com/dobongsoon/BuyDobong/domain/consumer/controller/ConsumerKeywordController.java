@@ -1,25 +1,38 @@
 package com.dobongsoon.BuyDobong.domain.consumer.controller;
 
+import com.dobongsoon.BuyDobong.common.exception.BusinessException;
+import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.domain.consumer.dto.KeywordRegisterResponse;
 import com.dobongsoon.BuyDobong.domain.consumer.dto.KeywordRequest;
 import com.dobongsoon.BuyDobong.domain.consumer.dto.KeywordResponse;
+import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
 import com.dobongsoon.BuyDobong.domain.consumer.model.ConsumerKeyword;
+import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
 import com.dobongsoon.BuyDobong.domain.consumer.service.ConsumerKeywordService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/consumer/{consumerId}/keyword")
+@RequestMapping("/api/consumer/keyword")
 public class ConsumerKeywordController {
 
     private final ConsumerKeywordService consumerKeywordService;
+    private final ConsumerRepository consumerRepository;
+
+    private Long consumerIdOrThrow(Long userId) {
+        return consumerRepository.findByUserId(userId)
+                .map(Consumer::getId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
+    }
 
     @Operation(
             summary = "관심 키워드 등록",
@@ -31,10 +44,13 @@ public class ConsumerKeywordController {
     """
     )
     @PostMapping
+    @PreAuthorize("hasRole('CONSUMER')")
     public ResponseEntity<KeywordRegisterResponse> addKeyword(
-            @PathVariable Long consumerId,
+            @AuthenticationPrincipal Long userId,
             @RequestBody @Valid KeywordRequest request
     ) {
+        Long consumerId = consumerIdOrThrow(userId);
+
         ConsumerKeyword saved = consumerKeywordService.add(consumerId, request.getWord());
 
         KeywordRegisterResponse body = KeywordRegisterResponse.builder()
@@ -57,7 +73,12 @@ public class ConsumerKeywordController {
     """
     )
     @GetMapping
-    public ResponseEntity<List<KeywordResponse>> getKeywords(@PathVariable Long consumerId) {
+    @PreAuthorize("hasRole('CONSUMER')")
+    public ResponseEntity<List<KeywordResponse>> getKeywords(
+            @AuthenticationPrincipal Long userId
+    ) {
+        Long consumerId = consumerIdOrThrow(userId);
+
         List<ConsumerKeyword> rows = consumerKeywordService.list(consumerId);
         List<KeywordResponse> result = rows.stream()
                 .map(ck -> KeywordResponse.builder()
@@ -79,10 +100,12 @@ public class ConsumerKeywordController {
     """
     )
     @DeleteMapping("/{keywordId}")
+    @PreAuthorize("hasRole('CONSUMER')")
     public ResponseEntity<Void> removeKeyword(
-            @PathVariable Long consumerId,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long keywordId
     ) {
+        Long consumerId = consumerIdOrThrow(userId);
         consumerKeywordService.remove(consumerId, keywordId);
         return ResponseEntity.noContent().build();
     }

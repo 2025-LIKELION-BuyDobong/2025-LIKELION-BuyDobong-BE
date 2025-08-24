@@ -5,7 +5,6 @@ import com.dobongsoon.BuyDobong.common.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -38,8 +37,7 @@ public class SecurityConfig {
                                 "/h2-console/**",
                                 "/api/auth/**",
                                 "/api/sms/**",
-                                "/api/auth/**",
-                                "/api/consumer/**"
+                                "/api/auth/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );

@@ -1,29 +1,34 @@
 package com.dobongsoon.BuyDobong.domain.consumer.search.controller;
 
+import com.dobongsoon.BuyDobong.common.exception.BusinessException;
+import com.dobongsoon.BuyDobong.common.response.ErrorCode;
+import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
+import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
 import com.dobongsoon.BuyDobong.domain.consumer.search.dto.SearchResponse;
 import com.dobongsoon.BuyDobong.domain.consumer.search.service.SearchService;
-import com.dobongsoon.BuyDobong.domain.consumer.service.ConsumerKeywordService;
 import com.dobongsoon.BuyDobong.domain.store.model.MarketName;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/consumer/{consumerId}/search")
+@RequestMapping("/api/consumer/search")
 public class SearchController {
 
     private final SearchService searchService;
-    private final ConsumerKeywordService consumerKeywordService;
+    private final ConsumerRepository consumerRepository;
 
     /**
-     * 예) /api/consumer/1/search?query=케이크
-     *     /api/consumer/1/search?query=케이크&onlyDeal=true
-     *     /api/consumer/1/search?query=케이크&markets=SINDOBONG,BAEGUN
-     *     /api/consumer/1/search?query=케이크&markets=SINDOBONG&markets=BAEGUN
+     * 예) /api/consumer/search?query=케이크
+     *     /api/consumer/search?query=케이크&onlyDeal=true
+     *     /api/consumer/search?query=케이크&markets=SINDOBONG,BAEGUN
+     *     /api/consumer/search?query=케이크&markets=SINDOBONG&markets=BAEGUN
      */
     @Operation(
             summary = "상점/상품 검색 및 조회",
@@ -42,12 +47,17 @@ public class SearchController {
             """
     )
     @GetMapping
+    @PreAuthorize("hasRole('CONSUMER')")
     public ResponseEntity<List<SearchResponse>> search(
-            @PathVariable Long consumerId,
+            @AuthenticationPrincipal Long userId,
             @RequestParam String query,
             @RequestParam(required = false) List<MarketName> markets,
             @RequestParam(required = false, defaultValue = "false") boolean onlyDeal
     ) {
+        Long consumerId = consumerRepository.findByUserId(userId)
+                .map(Consumer::getId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
+
         List<SearchResponse> result = searchService.search(consumerId, query, markets, onlyDeal);
         return ResponseEntity.ok(result);
     }
