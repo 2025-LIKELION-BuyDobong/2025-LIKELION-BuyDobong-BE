@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PushPreferenceRequest {
-    private boolean enabled;
+    private boolean pushEnabled;
 }
