@@ -37,8 +37,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/h2-console/**",
                                 "/api/auth/**",
-                                "/api/sms/**",
-                                "/api/auth/**"
+                                "/api/sms/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
