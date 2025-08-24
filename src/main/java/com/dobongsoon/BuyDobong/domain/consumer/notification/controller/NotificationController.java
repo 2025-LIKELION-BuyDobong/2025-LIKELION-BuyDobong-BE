@@ -1,53 +1,63 @@
 package com.dobongsoon.BuyDobong.domain.consumer.notification.controller;
 
+import com.dobongsoon.BuyDobong.common.exception.BusinessException;
+import com.dobongsoon.BuyDobong.common.response.ErrorCode;
+import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
+import com.dobongsoon.BuyDobong.domain.consumer.notification.dto.NotificationRequest;
 import com.dobongsoon.BuyDobong.domain.consumer.notification.dto.NotificationResponse;
 import com.dobongsoon.BuyDobong.domain.consumer.notification.model.NotificationType;
 import com.dobongsoon.BuyDobong.domain.consumer.notification.service.NotificationService;
+import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/consumer/{consumerId}/notification")
+@RequestMapping("/api/consumer/notification")
 @RequiredArgsConstructor
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final ConsumerRepository consumerRepository;
 
-    /** 공통 생성 */
-    @PostMapping
-    public ResponseEntity<NotificationResponse> create(
-            @RequestParam Long consumerId,
-            @RequestParam NotificationType type,
-            @RequestParam String title,
-            @RequestParam String body
-    ) {
-        return ResponseEntity.ok(
-                notificationService.create(consumerId, type, title, body)
-        );
+    private Long consumerIdOrThrow(Long userId) {
+        return consumerRepository.findByUserId(userId)
+                .map(Consumer::getId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
     }
 
-    /** 키워드 특가 알림 */
     @PostMapping("/keyword")
+    @PreAuthorize("hasRole('CONSUMER')")
     public ResponseEntity<NotificationResponse> createKeywordDeal(
-            @RequestParam Long consumerId,
-            @RequestParam String keyword,
-            @RequestParam String productName
+            @AuthenticationPrincipal Long userId,
+            @RequestBody @Valid NotificationRequest request
     ) {
+        Long consumerId = consumerIdOrThrow(userId);
         return ResponseEntity.ok(
-                notificationService.createKeywordDeal(consumerId, keyword, productName)
+                notificationService.createKeywordDeal(
+                        consumerId,
+                        request.getKeyword(),
+                        request.getProductName()
+                )
         );
     }
 
-    /** 상점 특가 알림 */
     @PostMapping("/store")
+    @PreAuthorize("hasRole('CONSUMER')")
     public ResponseEntity<NotificationResponse> createStoreDeal(
-            @RequestParam Long consumerId,
-            @RequestParam String storeName,
-            @RequestParam String productName
+            @AuthenticationPrincipal Long userId,
+            @RequestBody @Valid NotificationRequest request
     ) {
+        Long consumerId = consumerIdOrThrow(userId);
         return ResponseEntity.ok(
-                notificationService.createStoreDeal(consumerId, storeName, productName)
+                notificationService.createStoreDeal(
+                        consumerId,
+                        request.getStoreName(),
+                        request.getProductName()
+                )
         );
     }
 }
