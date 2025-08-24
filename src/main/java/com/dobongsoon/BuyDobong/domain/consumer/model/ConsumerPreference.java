@@ -1,10 +1,7 @@
 package com.dobongsoon.BuyDobong.domain.consumer.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -24,6 +21,7 @@ public class ConsumerPreference {
     @Column(name="user_id", nullable = false)
     private Long userId;
 
+    @Setter
     @Column(name="push_enabled", nullable = false)
     private boolean pushEnabled;
 
@@ -37,4 +35,5 @@ public class ConsumerPreference {
                 .pushEnabled(true)
                 .build();
     }
+
 }
