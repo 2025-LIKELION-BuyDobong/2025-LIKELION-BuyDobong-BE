@@ -4,11 +4,10 @@ import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.common.s3.S3Service;
 import com.dobongsoon.BuyDobong.domain.consumer.recent.service.RecentStoreService;
-import com.dobongsoon.BuyDobong.domain.product.dto.ProductResponse;
-import com.dobongsoon.BuyDobong.domain.product.dto.ProductUpdateRequest;
+import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
+import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreCreateRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreDetailDto;
-import com.dobongsoon.BuyDobong.domain.store.dto.StoreImageUploadResponse;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreOpenRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreResponse;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreUpdateRequest;
@@ -21,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +33,7 @@ public class StoreController {
     private final StoreService storeService;
     private final StoreQueryService storeQueryService;
     private final RecentStoreService recentStoreService;
+    private final ConsumerRepository consumerRepository;
     private final S3Service s3Service;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -103,24 +102,25 @@ public class StoreController {
     @Operation(
             summary = "상점 상세 조회",
             description = """
-        특정 상점의 상세 정보를 조회합니다.
-        - 인증: Consumer
-        - 요청:
-          - storeId: 상점 ID
-          - consumerId: 소비자 ID
-        - 응답: 상점 상세 정보 (id, name, market, open, favorite, products, deals 등)
-        """
+                    특정 상점의 상세 정보를 조회합니다.
+                    - 인증: Consumer
+                    - 요청: storeId
+                    - 응답: 상점 상세 정보 (id, name, market, open, favorite, products, deals 등)
+                    """
     )
-    @GetMapping("/{storeId}/detail/{consumerId}")
+    @GetMapping("/{storeId}/detail")
+    @PreAuthorize("hasRole('CONSUMER')")
     public ResponseEntity<StoreDetailDto> getStoreDetail(
             @PathVariable Long storeId,
-            @PathVariable(required = false) Long consumerId
+            @AuthenticationPrincipal Long userId
     ) {
+        Long consumerId = consumerRepository.findByUserId(userId)
+                .map(Consumer::getId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
+
         StoreDetailDto dto = storeQueryService.getStoreDetail(storeId, consumerId);
 
-        if (consumerId != null) {
-            recentStoreService.add(consumerId, storeId);
-        }
+        recentStoreService.add(consumerId, storeId); // 최근 본 상점 기록
 
         return ResponseEntity.ok(dto);
     }
