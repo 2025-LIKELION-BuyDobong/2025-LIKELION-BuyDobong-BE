@@ -1,21 +1,34 @@
 package com.dobongsoon.BuyDobong.domain.consumer.recent.controller;
 
+import com.dobongsoon.BuyDobong.common.exception.BusinessException;
+import com.dobongsoon.BuyDobong.common.response.ErrorCode;
+import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
 import com.dobongsoon.BuyDobong.domain.consumer.recent.dto.RecentStoreResponse;
 import com.dobongsoon.BuyDobong.domain.consumer.recent.model.RecentStore;
 import com.dobongsoon.BuyDobong.domain.consumer.recent.service.RecentStoreService;
+import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/consumer/{consumerId}/recent")
+@RequestMapping("/api/consumer/recent")
 public class RecentStoreController {
 
     private final RecentStoreService recentStoreService;
+    private final ConsumerRepository consumerRepository;
+
+    private Long consumerIdOrThrow(Long userId) {
+        return consumerRepository.findByUserId(userId)
+                .map(Consumer::getId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
+    }
 
     @Operation(
             summary = "최근 본 상점 기록/갱신",
@@ -28,8 +41,14 @@ public class RecentStoreController {
             """
     )
     @PostMapping("/{storeId}")
-    public ResponseEntity<Void> add(@PathVariable Long consumerId, @PathVariable Long storeId) {
+    @PreAuthorize("hasRole('CONSUMER')")
+    public ResponseEntity<Void> add(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long storeId
+    ) {
+        Long consumerId = consumerIdOrThrow(userId);
         recentStoreService.add(consumerId, storeId);
+
         return ResponseEntity.ok().build();
     }
 
@@ -42,7 +61,12 @@ public class RecentStoreController {
             """
     )
     @GetMapping
-    public ResponseEntity<List<RecentStoreResponse>> list(@PathVariable Long consumerId) {
+    @PreAuthorize("hasRole('CONSUMER')")
+    public ResponseEntity<List<RecentStoreResponse>> list(
+            @AuthenticationPrincipal Long userId
+    ) {
+        Long consumerId = consumerIdOrThrow(userId);
+
         List<RecentStore> rows = recentStoreService.list(consumerId);
         List<RecentStoreResponse> body = rows.stream()
                 .map(r -> RecentStoreResponse.builder()
@@ -53,6 +77,7 @@ public class RecentStoreController {
                         .viewedAt(r.getViewedAt())
                         .build())
                 .toList();
+
         return ResponseEntity.ok(body);
     }
 
@@ -66,8 +91,14 @@ public class RecentStoreController {
             """
     )
     @DeleteMapping("/{storeId}")
-    public ResponseEntity<Void> remove(@PathVariable Long consumerId, @PathVariable Long storeId) {
+    @PreAuthorize("hasRole('CONSUMER')")
+    public ResponseEntity<Void> remove(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long storeId
+    ) {
+        Long consumerId = consumerIdOrThrow(userId);
         recentStoreService.remove(consumerId, storeId);
+
         return ResponseEntity.noContent().build();
     }
 }
