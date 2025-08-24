@@ -27,4 +27,6 @@ public class ConsumerService {
                 .map(Consumer::getId)
                 .orElse(null);
     }
+
+
 }
