@@ -29,7 +29,7 @@ public class ConsumerKeywordController {
     private final ConsumerRepository consumerRepository;
 
     private Long consumerIdOrThrow(Long userId) {
-        return consumerRepository.findByUserId(userId)
+        return consumerRepository.findByUser_Id(userId)
                 .map(Consumer::getId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
     }

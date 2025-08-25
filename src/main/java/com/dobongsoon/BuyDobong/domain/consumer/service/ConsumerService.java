@@ -16,14 +16,14 @@ public class ConsumerService {
         if (phone == null) return null;
 
         return userRepository.findByPhone(phone)
-                .flatMap(user -> consumerRepository.findByUserId(user.getId()))
+                .flatMap(user -> consumerRepository.findByUser_Id(user.getId()))
                 .map(Consumer::getId)
                 .orElse(null);
     }
 
     public Long consumerIdOrNull(Long userId) {
         if (userId == null) return null;
-        return consumerRepository.findByUserId(userId)
+        return consumerRepository.findByUser_Id(userId)
                 .map(Consumer::getId)
                 .orElse(null);
     }
