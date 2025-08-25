@@ -9,6 +9,7 @@ public class FavoriteStoreResponse {
     private Long id;
     private String name;
     private String market;
+    private String imageUrl;
     private boolean isOpen;
     private LocalDateTime createdAt;
 }
