@@ -8,10 +8,13 @@ import com.dobongsoon.BuyDobong.domain.consumer.push.service.PushSubscriptionSer
 import com.dobongsoon.BuyDobong.domain.consumer.service.ConsumerPreferenceService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/consumer")
@@ -60,7 +63,24 @@ public class PushController {
         );
     }
 
-    // 구독 저장/갱신
+    @Value("${push.vapid.public-key}")
+    private String vapidPublicKey;
+
+    @GetMapping("/vapid")
+    public Map<String, String> getPublicKey() {
+        return Map.of("publicKey", vapidPublicKey);
+    }
+
+    @Operation(
+            summary = "PWA 구독 정보 저장/갱신",
+            description = """
+    브라우저 PWA에서 발급받은 구독 정보를 서버에 등록합니다.
+    - 인증 필요: CONSUMER
+    - 요청: { "endpoint", "p256dh", "auth" }
+    - 같은 endpoint가 이미 있으면 갱신 처리됩니다.
+    - 응답: { id, endpoint, active, createdAt }
+    """
+    )
     @PostMapping("/subscription")
     @PreAuthorize("hasRole('CONSUMER')")
     public ResponseEntity<PushSubscriptionResponse> subscribe(
@@ -70,7 +90,16 @@ public class PushController {
         return ResponseEntity.ok(pushSubscriptionService.subscribe(userId, req));
     }
 
-    // 구독 해제
+    @Operation(
+            summary = "PWA 구독 정보 삭제",
+            description = """
+    저장된 구독 정보를 삭제합니다.
+    - 인증 필요: CONSUMER
+    - 요청 파라미터: endpoint
+    - 해당 endpoint가 존재하면 삭제합니다.
+    - 응답: 204 No Content
+    """
+    )
     @DeleteMapping("/subscription")
     @PreAuthorize("hasRole('CONSUMER')")
     public ResponseEntity<Void> unsubscribe(
