@@ -108,7 +108,7 @@ public class PushController {
             @Valid @RequestBody PushSubscriptionRequest req
     ) {
         Long consumerId = consumerIdOrThrow(userId);
-        return ResponseEntity.ok(pushSubscriptionService.subscribe(userId, req));
+        return ResponseEntity.ok(pushSubscriptionService.subscribe(consumerId, req));
     }
 
     @Operation(
