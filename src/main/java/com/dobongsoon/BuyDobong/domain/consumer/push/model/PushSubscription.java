@@ -34,13 +34,13 @@ public class PushSubscription {
     @JoinColumn(name="consumer_id", nullable = false)
     private Consumer consumer;
 
-    @Column(nullable = false, length = 1024)
+    @Column(nullable = false, length = 2048)
     private String endpoint;
 
-    @Column(nullable = false, length = 256)
+    @Column(nullable = false, length = 512)
     private String p256dh;
 
-    @Column(nullable = false, length = 256)
+    @Column(nullable = false, length = 512)
     private String auth;
 
     @CreationTimestamp

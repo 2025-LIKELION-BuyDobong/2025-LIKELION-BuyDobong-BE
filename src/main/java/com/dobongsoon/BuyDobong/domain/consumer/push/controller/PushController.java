@@ -1,12 +1,17 @@
 package com.dobongsoon.BuyDobong.domain.consumer.push.controller;
 
+import com.dobongsoon.BuyDobong.common.exception.BusinessException;
+import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.domain.consumer.dto.PushPreferenceRequest;
 import com.dobongsoon.BuyDobong.domain.consumer.dto.PushPreferenceResponse;
+import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
 import com.dobongsoon.BuyDobong.domain.consumer.push.dto.PushSubscriptionRequest;
 import com.dobongsoon.BuyDobong.domain.consumer.push.dto.PushSubscriptionResponse;
 import com.dobongsoon.BuyDobong.domain.consumer.push.service.PushSubscriptionService;
+import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
 import com.dobongsoon.BuyDobong.domain.consumer.service.ConsumerPreferenceService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +28,13 @@ public class PushController {
 
     private final ConsumerPreferenceService preferenceService;
     private final PushSubscriptionService pushSubscriptionService;
+    private final ConsumerRepository consumerRepository;
+
+    private Long consumerIdOrThrow(Long userId) {
+        return consumerRepository.findByUser_Id(userId)
+                .map(Consumer::getId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
+    }
 
     @Operation(
             summary = "푸시 알림 설정 상태 조회",
@@ -66,6 +78,14 @@ public class PushController {
     @Value("${push.vapid.public-key}")
     private String vapidPublicKey;
 
+    @Operation(
+            summary = "VAPID 공개키 조회",
+            description = """
+        프론트에서 브라우저 구독 시 필요한 VAPID 공개키를 제공합니다.
+        - 인증 불필요
+        - 응답: { "publicKey": "<VAPID_PUBLIC_KEY>" }
+        """
+    )
     @GetMapping("/vapid")
     public Map<String, String> getPublicKey() {
         return Map.of("publicKey", vapidPublicKey);
@@ -77,16 +97,17 @@ public class PushController {
     브라우저 PWA에서 발급받은 구독 정보를 서버에 등록합니다.
     - 인증 필요: CONSUMER
     - 요청: { "endpoint", "p256dh", "auth" }
-    - 같은 endpoint가 이미 있으면 갱신 처리됩니다.
-    - 응답: { id, endpoint, active, createdAt }
+    - 같은 endpoint가 이미 있으면 키 값만 갱신 처리됩니다.
+    - 응답: { id, endpoint, createdAt }
     """
     )
     @PostMapping("/subscription")
     @PreAuthorize("hasRole('CONSUMER')")
     public ResponseEntity<PushSubscriptionResponse> subscribe(
             @AuthenticationPrincipal Long userId,
-            @RequestBody @jakarta.validation.Valid PushSubscriptionRequest req
+            @Valid @RequestBody PushSubscriptionRequest req
     ) {
+        Long consumerId = consumerIdOrThrow(userId);
         return ResponseEntity.ok(pushSubscriptionService.subscribe(userId, req));
     }
 
@@ -106,7 +127,8 @@ public class PushController {
             @AuthenticationPrincipal Long userId,
             @RequestParam String endpoint
     ) {
-        pushSubscriptionService.unsubscribe(userId, endpoint);
+        Long consumerId = consumerIdOrThrow(userId);
+        pushSubscriptionService.unsubscribe(consumerId, endpoint);
         return ResponseEntity.noContent().build();
     }
 }

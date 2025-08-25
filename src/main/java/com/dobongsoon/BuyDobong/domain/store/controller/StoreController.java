@@ -114,7 +114,7 @@ public class StoreController {
             @PathVariable Long storeId,
             @AuthenticationPrincipal Long userId
     ) {
-        Long consumerId = consumerRepository.findByUserId(userId)
+        Long consumerId = consumerRepository.findByUser_Id(userId)
                 .map(Consumer::getId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
 
