@@ -6,6 +6,7 @@ import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
 import com.dobongsoon.BuyDobong.domain.consumer.notification.dto.NotificationResponse;
 import com.dobongsoon.BuyDobong.domain.consumer.notification.model.Notification;
 import com.dobongsoon.BuyDobong.domain.consumer.notification.repository.NotificationRepository;
+import com.dobongsoon.BuyDobong.domain.consumer.push.service.WebPushSender;
 import com.dobongsoon.BuyDobong.domain.consumer.repository.*;
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
 import com.dobongsoon.BuyDobong.domain.store.model.Store;
@@ -30,6 +31,8 @@ public class NotificationService {
     private final FavoriteStoreRepository favoriteStoreRepository;
     private final StoreRepository storeRepository;
 
+    private final WebPushSender webPushSender;
+
     /** 상점 특가 알림 (팬아웃) */
     public void fanoutStoreDeal(Long storeId, String productName) {
         Store store = storeRepository.findById(storeId)
@@ -46,6 +49,16 @@ public class NotificationService {
                 .toList();
 
         notificationRepository.saveAll(notifications);
+
+        // 웹 푸시도 DB 알림 내용 그대로 전송
+        for (Notification n : notifications) {
+            webPushSender.sendToConsumer(
+                    n.getConsumer().getId(),
+                    n.getTitle(),
+                    n.getBody(),
+                    "https://buy-dobong.vercel.app/marketDetil/" + storeId
+            );
+        }
     }
 
     /** 관심 키워드 특가 알림 (팬아웃) */
@@ -67,6 +80,23 @@ public class NotificationService {
                 .toList();
 
         notificationRepository.saveAll(notifications);
+
+        // 웹 푸시도 DB 알림 내용 그대로 전송
+        for (Notification n : notifications) {
+            String keyword = n.getBody().contains("'")
+                    ? n.getBody().split("'")[1] // 본문에서 키워드만 추출
+                    : "";
+
+            String deeplink = "https://buy-dobong.vercel.app/keywordSearch?query="
+                    + java.net.URLEncoder.encode(keyword, java.nio.charset.StandardCharsets.UTF_8);
+
+            webPushSender.sendToConsumer(
+                    n.getConsumer().getId(),
+                    n.getTitle(),
+                    n.getBody(),
+                    deeplink
+            );
+        }
     }
 
     @Transactional(readOnly = true)

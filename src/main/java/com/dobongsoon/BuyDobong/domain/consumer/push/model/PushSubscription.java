@@ -11,8 +11,16 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "push_subscription",
-        uniqueConstraints = @UniqueConstraint(name="uk_consumer_endpoint", columnNames = {"consumer_id","endpoint"}))
+@Table(
+        name = "push_subscription",
+        uniqueConstraints = {
+                // 같은 소비자가 동일 endpoint를 중복 등록하지 못하도록
+                @UniqueConstraint(name = "uk_consumer_endpoint", columnNames = {"consumer_id", "endpoint"})
+        },
+        indexes = {
+                @Index(name = "idx_push_sub_consumer", columnList = "consumer_id")
+        }
+)
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,26 +37,29 @@ public class PushSubscription {
     @Column(nullable = false, length = 1024)
     private String endpoint;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 256)
     private String p256dh;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 256)
     private String auth;
-
-    @Column(nullable = false)
-    private boolean active;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public void activate(String p256dh, String auth) {
-        this.p256dh = p256dh;
-        this.auth   = auth;
-        this.active = true;
+    /* 편의 생성자 */
+    public static PushSubscription of(Consumer consumer, String endpoint, String p256dh, String auth) {
+        return PushSubscription.builder()
+                .consumer(consumer)
+                .endpoint(endpoint)
+                .p256dh(p256dh)
+                .auth(auth)
+                .build();
     }
 
-    public void deactivate() {
-        this.active = false;
+    /* 내용 갱신(같은 endpoint 재구독 시 키만 바뀌는 케이스 대비) */
+    public void updateKeys(String newP256dh, String newAuth) {
+        this.p256dh = newP256dh;
+        this.auth = newAuth;
     }
 }
