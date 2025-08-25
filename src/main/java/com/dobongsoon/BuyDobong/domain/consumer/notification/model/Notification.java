@@ -49,7 +49,7 @@ public class Notification {
         return of(consumer,
                 NotificationType.KEYWORD,
                 "'" + keyword + "' 특가 소식 도착! 💸",
-                "지금 '" + productName + "'이 할인 가격으로 올라왔어요.\n오늘 메뉴 고민 끝!");
+                "지금 '" + productName + "'이(가) 할인 가격으로 올라왔어요.\n오늘 메뉴 고민 끝!");
     }
 
     public static Notification storeDeal(Consumer consumer, String storeName, String productName) {
