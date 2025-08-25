@@ -57,7 +57,7 @@ public class RecentStoreController {
             description = """
             특정 소비자가 최근에 본 상점 목록을 최신순으로 최대 5개 조회합니다.
             - 인증 필요: CONSUMER
-            - 응답: 상점 리스트 (id, name, market, open, viewedAt)
+            - 응답: 상점 리스트 (id, name, market, imageUrl, open, viewedAt)
             """
     )
     @GetMapping
@@ -73,6 +73,7 @@ public class RecentStoreController {
                         .id(r.getStore().getId())
                         .name(r.getStore().getName())
                         .market(r.getStore().getMarket().name())
+                        .imageUrl(r.getStore().getImageUrl())
                         .open(r.getStore().isOpen())
                         .viewedAt(r.getViewedAt())
                         .build())

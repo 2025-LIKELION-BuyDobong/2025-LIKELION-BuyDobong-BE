@@ -59,7 +59,7 @@ public class FavoriteStoreController {
         특정 소비자의 관심 상점 목록을 조회합니다.
         - 인증 필요: CONSUMER
         - 요청: storeId
-        - 응답: 조회된 상점 목록과 정보 (id, name, market, isOpen, createdAt)
+        - 응답: 조회된 상점 목록과 정보 (id, name, market, imageUrl, isOpen, createdAt)
         """
     )
     @GetMapping

@@ -48,6 +48,7 @@ public class FavoriteStoreService {
                 .id(store.getId())
                 .name(store.getName())
                 .market(store.getMarket().name())
+                .imageUrl(store.getImageUrl())
                 .isOpen(store.isOpen())
                 .createdAt(saved.getCreatedAt())
                 .build();
@@ -81,6 +82,7 @@ public class FavoriteStoreService {
                     .id(s.getId())
                     .name(s.getName())
                     .market(s.getMarket().name())
+                    .imageUrl(s.getImageUrl())
                     .isOpen(s.isOpen())
                     .createdAt(f.getCreatedAt())
                     .build();
