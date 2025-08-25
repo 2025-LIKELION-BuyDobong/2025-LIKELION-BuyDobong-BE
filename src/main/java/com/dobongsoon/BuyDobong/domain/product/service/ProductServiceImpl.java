@@ -108,6 +108,8 @@ public class ProductServiceImpl implements ProductService {
 
         // 관심 상점 특가 알림
         notificationService.fanoutStoreDeal(product.getStore().getId(), product.getName());
+        // 관심 키워드 특가 알림
+        notificationService.fanoutKeywordDeal(product);
 
         return toResponse(product);
     }
