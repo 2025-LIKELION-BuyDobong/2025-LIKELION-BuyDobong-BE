@@ -48,6 +48,7 @@ public class Store {
 
     private String imageUrl;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean open = false;
 

@@ -52,6 +52,7 @@ public class Product {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean hidden = false;
 
@@ -62,6 +63,7 @@ public class Product {
     private LocalDateTime dealStartAt;
     private LocalDateTime dealEndAt;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean dealActive = false;
 

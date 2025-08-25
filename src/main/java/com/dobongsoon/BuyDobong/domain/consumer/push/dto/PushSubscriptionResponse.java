@@ -10,15 +10,13 @@ import java.time.LocalDateTime;
 @Builder
 public class PushSubscriptionResponse {
     private Long id;
-    private String endpoint;
-    private boolean active;
+    private String endpoint;;
     private LocalDateTime createdAt;
 
     public static PushSubscriptionResponse from(PushSubscription s) {
         return PushSubscriptionResponse.builder()
                 .id(s.getId())
                 .endpoint(s.getEndpoint())
-                .active(s.isActive())
                 .createdAt(s.getCreatedAt())
                 .build();
     }

@@ -47,3 +47,9 @@ coolsms:
   apiSecret: ${COOLSMS_API_SECRET}
   senderNumber: ${COOLSMS_SENDER}
   endPoint: https://api.solapi.com
+
+push:
+  vapid:
+    subject: "https://buy-dobong.vercel.app"
+    public-key: ${PUSH_VAPID_PUBLIC_KEY}
+    private-key: ${PUSH_VAPID_PRIVATE_KEY}
