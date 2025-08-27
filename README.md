@@ -61,4 +61,4 @@ docker compose up -d app
 ```
 
  ## 📄 API Docs
-	•	Swagger UI : /swagger-ui.html
+	•	Swagger UI : https://n0t4u.shop/swagger-ui/index.html
