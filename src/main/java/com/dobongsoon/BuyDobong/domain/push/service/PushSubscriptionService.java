@@ -6,8 +6,8 @@ import com.dobongsoon.BuyDobong.domain.push.dto.PushSubscriptionRequest;
 import com.dobongsoon.BuyDobong.domain.push.dto.PushSubscriptionResponse;
 import com.dobongsoon.BuyDobong.domain.push.model.PushSubscription;
 import com.dobongsoon.BuyDobong.domain.push.repository.PushSubscriptionRepository;
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
+import com.dobongsoon.BuyDobong.domain.user.model.User;
+import com.dobongsoon.BuyDobong.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,33 +18,41 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PushSubscriptionService {
 
-    private final ConsumerRepository consumerRepository;
+    private final UserRepository userRepository;
     private final PushSubscriptionRepository subscriptionRepository;
 
     /** 구독 등록/갱신 */
-    public PushSubscriptionResponse subscribe(Long consumerId, PushSubscriptionRequest req) {
-        Consumer consumer = consumerRepository.findById(consumerId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
+    public PushSubscriptionResponse subscribe(Long userId, PushSubscriptionRequest req) {
+        if (!userRepository.existsById(userId)) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
 
-        // upsert: 있으면 갱신, 없으면 생성
-        PushSubscription sub = subscriptionRepository
-                .findByConsumer_IdAndEndpoint(consumerId, req.getEndpoint())
-                .orElseGet(() -> PushSubscription.of(
-                        consumer,
-                        req.getEndpoint(),
-                        req.getP256dh(),
-                        req.getAuth()
-                ));
+        // 2) 구독 정보 업서트
+        PushSubscription existing = subscriptionRepository
+                .findByUser_IdAndEndpoint(userId, req.getEndpoint())
+                .orElse(null);
 
-        // 키 값 갱신 (p256dh, auth 바뀌었을 경우)
-        sub.updateKeys(req.getP256dh(), req.getAuth());
+        if (existing != null) {
+            // 같은 endpoint 재구독: 키만 갱신
+            existing.updateKeys(req.getP256dh(), req.getAuth());
 
-        return PushSubscriptionResponse.from(subscriptionRepository.save(sub));
+            return PushSubscriptionResponse.from(subscriptionRepository.save(existing));
+        }
+
+        // 3) 신규 생성 (User는 프록시 참조로 쿼리 최소화)
+        User userRef = userRepository.getReferenceById(userId);
+        PushSubscription created = PushSubscription.builder()
+                .user(userRef)
+                .endpoint(req.getEndpoint())
+                .p256dh(req.getP256dh())
+                .auth(req.getAuth())
+                .build();
+
+        return PushSubscriptionResponse.from(subscriptionRepository.save(created));
     }
 
     /** 구독 해제 */
-    public void unsubscribe(Long consumerId, String endpoint) {
-        subscriptionRepository.findByConsumer_IdAndEndpoint(consumerId, endpoint)
-                .ifPresent(subscriptionRepository::delete);
+    public void unsubscribe(Long userId, String endpoint) {
+        subscriptionRepository.deleteByUser_IdAndEndpoint(userId, endpoint);
     }
 }

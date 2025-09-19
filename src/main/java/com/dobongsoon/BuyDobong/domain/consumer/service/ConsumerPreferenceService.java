@@ -1,6 +1,6 @@
 package com.dobongsoon.BuyDobong.domain.consumer.service;
 
-import com.dobongsoon.BuyDobong.domain.consumer.dto.PushPreferenceResponse;
+import com.dobongsoon.BuyDobong.domain.push.dto.PushPreferenceResponse;
 import com.dobongsoon.BuyDobong.domain.consumer.model.ConsumerPreference;
 import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerPreferenceRepository;
 import lombok.RequiredArgsConstructor;

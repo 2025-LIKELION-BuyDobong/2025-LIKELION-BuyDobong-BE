@@ -23,18 +23,18 @@ public class WebPushSender {
     private final PushSubscriptionRepository subscriptionRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    /** 단일 소비자 전송 → 결국 bulk 메서드 재사용 */
-    public void sendToConsumer(Long consumerId, String title, String body, String url) {
-        sendToConsumers(List.of(consumerId), title, body, url);
+    /** 단일 사용자 전송 → 결국 bulk 메서드 재사용 */
+    public void sendToUser(Long userId, String title, String body, String url) {
+        sendToUsers(List.of(userId), title, body, url);
     }
 
-    /** 여러 소비자에게 벌크 전송 */
-    public void sendToConsumers(List<Long> consumerIds, String title, String body, String url) {
-        if (consumerIds == null || consumerIds.isEmpty()) return;
+    /** 여러 사용자에게 벌크 전송 */
+    public void sendToUsers(List<Long> userIds, String title, String body, String url) {
+        if (userIds == null || userIds.isEmpty()) return;
 
-        List<PushSubscription> subs = subscriptionRepository.findByConsumer_IdIn(consumerIds);
+        List<PushSubscription> subs = subscriptionRepository.findByUser_IdIn(userIds);
         if (subs.isEmpty()) {
-            log.debug("No subscriptions for consumerIds={}", consumerIds);
+            log.debug("No subscriptions for userIds={}", userIds);
             return;
         }
         byte[] payload = buildPayload(title, body, url);
@@ -50,13 +50,16 @@ public class WebPushSender {
                 HttpResponse res = pushService.send(n);
                 int status = res.getStatusLine().getStatusCode();
 
-                if (status < 200 || status >= 300) {
-                    log.warn("Bulk push failed: consumerId={}, status={}, endpoint={}",
-                            s.getConsumer().getId(), status, s.getEndpoint());
+                if (status == 404 || status == 410) {
+                    // 죽은 구독 정리
+                    subscriptionRepository.delete(s);
+                    log.info("Deleted dead subscription: userId={}, endpoint={}", s.getUser().getId(), s.getEndpoint());
+                } else if (status < 200 || status >= 300) {
+                    log.warn("Bulk push failed: userId={}, status={}, endpoint={}", s.getUser().getId(), status, s.getEndpoint());
                 }
             } catch (Exception e) {
-                log.warn("Bulk push error: consumerId={}, endpoint={}",
-                        s.getConsumer().getId(), s.getEndpoint(), e);
+                log.warn("Bulk push error: userId={}, endpoint={}",
+                        s.getUser().getId(), s.getEndpoint(), e);
             }
         }
     }

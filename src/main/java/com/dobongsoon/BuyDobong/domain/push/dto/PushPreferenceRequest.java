@@ -1,4 +1,4 @@
-package com.dobongsoon.BuyDobong.domain.consumer.dto;
+package com.dobongsoon.BuyDobong.domain.push.dto;
 
 import lombok.Getter;
 import lombok.Setter;

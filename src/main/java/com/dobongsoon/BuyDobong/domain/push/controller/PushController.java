@@ -1,15 +1,11 @@
 package com.dobongsoon.BuyDobong.domain.push.controller;
 
-import com.dobongsoon.BuyDobong.common.exception.BusinessException;
-import com.dobongsoon.BuyDobong.common.response.ErrorCode;
-import com.dobongsoon.BuyDobong.domain.consumer.dto.PushPreferenceRequest;
-import com.dobongsoon.BuyDobong.domain.consumer.dto.PushPreferenceResponse;
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
+import com.dobongsoon.BuyDobong.domain.push.dto.PushPreferenceRequest;
+import com.dobongsoon.BuyDobong.domain.push.dto.PushPreferenceResponse;
 import com.dobongsoon.BuyDobong.domain.push.dto.PushSubscriptionRequest;
 import com.dobongsoon.BuyDobong.domain.push.dto.PushSubscriptionResponse;
+import com.dobongsoon.BuyDobong.domain.push.service.PushService;
 import com.dobongsoon.BuyDobong.domain.push.service.PushSubscriptionService;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
-import com.dobongsoon.BuyDobong.domain.consumer.service.ConsumerPreferenceService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,56 +18,51 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/consumer")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class PushController {
 
-    private final ConsumerPreferenceService preferenceService;
+    private final PushService pushService;
     private final PushSubscriptionService pushSubscriptionService;
-    private final ConsumerRepository consumerRepository;
-
-    private Long consumerIdOrThrow(Long userId) {
-        return consumerRepository.findByUser_Id(userId)
-                .map(Consumer::getId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
-    }
 
     @Operation(
             summary = "푸시 알림 설정 상태 조회",
             description = """
-    현재 소비자의 푸시 알림 설정 상태를 조회합니다.
-    - 인증 필요: CONSUMER
+    현재 사용자의 푸시 알림 설정 상태를 조회합니다.
+    - 인증 필요
     - 응답: { "pushEnabled": true|false }
     - 레코드가 없으면 기본 false를 반환합니다.
     """
     )
     @GetMapping("/push")
-    @PreAuthorize("hasRole('CONSUMER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PushPreferenceResponse> getPush(
             @AuthenticationPrincipal Long userId
     ) {
+        boolean enabled = pushService.getPushEnabled(userId);
         return ResponseEntity.ok(
-                preferenceService.getPushPreference(userId)
+                PushPreferenceResponse.builder().pushEnabled(enabled).build()
         );
     }
 
     @Operation(
             summary = "푸시 알림 on/off 설정",
             description = """
-    소비자가 푸시 알림 수신 여부를 on/off 합니다.
-    - 인증 필요: CONSUMER
+    사용자가 푸시 알림 수신 여부를 on/off 합니다.
+    - 인증 필요
     - 요청: { "pushEnabled": true|false }
     - 응답: { "pushEnabled": true|false }
     """
     )
     @PatchMapping("/push")
-    @PreAuthorize("hasRole('CONSUMER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PushPreferenceResponse> togglePush(
             @AuthenticationPrincipal Long userId,
             @RequestBody PushPreferenceRequest request
     ) {
+        boolean enabled = pushService.setPushEnabled(userId, request.isPushEnabled());
         return ResponseEntity.ok(
-                preferenceService.togglePush(userId, request.isPushEnabled())
+                PushPreferenceResponse.builder().pushEnabled(enabled).build()
         );
     }
 
@@ -102,33 +93,31 @@ public class PushController {
     """
     )
     @PostMapping("/subscription")
-    @PreAuthorize("hasRole('CONSUMER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PushSubscriptionResponse> subscribe(
             @AuthenticationPrincipal Long userId,
             @Valid @RequestBody PushSubscriptionRequest req
     ) {
-        Long consumerId = consumerIdOrThrow(userId);
-        return ResponseEntity.ok(pushSubscriptionService.subscribe(consumerId, req));
+        return ResponseEntity.ok(pushSubscriptionService.subscribe(userId, req));
     }
 
     @Operation(
             summary = "PWA 구독 정보 삭제",
             description = """
     저장된 구독 정보를 삭제합니다.
-    - 인증 필요: CONSUMER
+    - 인증 필요
     - 요청 파라미터: endpoint
     - 해당 endpoint가 존재하면 삭제합니다.
     - 응답: 204 No Content
     """
     )
     @DeleteMapping("/subscription")
-    @PreAuthorize("hasRole('CONSUMER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> unsubscribe(
             @AuthenticationPrincipal Long userId,
             @RequestParam String endpoint
     ) {
-        Long consumerId = consumerIdOrThrow(userId);
-        pushSubscriptionService.unsubscribe(consumerId, endpoint);
+        pushSubscriptionService.unsubscribe(userId, endpoint);
         return ResponseEntity.noContent().build();
     }
 }

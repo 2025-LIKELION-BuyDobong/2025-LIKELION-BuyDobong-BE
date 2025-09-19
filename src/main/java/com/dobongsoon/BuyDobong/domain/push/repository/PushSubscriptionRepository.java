@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PushSubscriptionRepository extends JpaRepository<PushSubscription, Long> {
-    List<PushSubscription> findByConsumer_Id(Long consumerId);
+    List<PushSubscription> findByUser_Id(Long userId);
 
-    List<PushSubscription> findByConsumer_IdIn(List<Long> consumerIds);
+    List<PushSubscription> findByUser_IdIn(List<Long> userIds);
 
-    Optional<PushSubscription> findByConsumer_IdAndEndpoint(Long consumerId, String endpoint);
+    Optional<PushSubscription> findByUser_IdAndEndpoint(Long userId, String endpoint);
 
-    void deleteByConsumer_IdAndEndpoint(Long consumerId, String endpoint);
+    void deleteByUser_IdAndEndpoint(Long userId, String endpoint);
 }
