@@ -106,18 +106,17 @@ public class StoreController {
                     """
     )
     @GetMapping("/{storeId}/detail")
-    @PreAuthorize("hasRole('CONSUMER')")
     public ResponseEntity<StoreDetailDto> getStoreDetail(
             @PathVariable Long storeId,
             @AuthenticationPrincipal Long userId
     ) {
-        if (userId == null) throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-
-        // StoreQueryService는 userId 기반으로 favorite 계산
+        // userId가 null이어도 동작하도록 StoreQueryService가 처리 (관심 상점 설정 = false)
         StoreDetailDto dto = storeQueryService.getStoreDetail(storeId, userId);
 
-        // 최근 본 상점 기록
-        recentStoreService.add(userId, storeId);
+        // 로그인한 경우에만 최근 본 상점 기록
+        if (userId != null) {
+            recentStoreService.add(userId, storeId);
+        }
 
         return ResponseEntity.ok(dto);
     }

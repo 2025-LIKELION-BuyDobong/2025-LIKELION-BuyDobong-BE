@@ -14,16 +14,16 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/consumer/search")
+@RequestMapping("/api/search")
 public class SearchController {
 
     private final SearchService searchService;
 
     /**
-     * 예) /api/consumer/search?query=케이크
-     *     /api/consumer/search?query=케이크&onlyDeal=true
-     *     /api/consumer/search?query=케이크&markets=SINDOBONG,BAEGUN
-     *     /api/consumer/search?query=케이크&markets=SINDOBONG&markets=BAEGUN
+     * 예) /api/search?query=케이크
+     *     /api/search?query=케이크&onlyDeal=true
+     *     /api/search?query=케이크&markets=SINDOBONG,BAEGUN
+     *     /api/search?query=케이크&markets=SINDOBONG&markets=BAEGUN
      */
     @Operation(
             summary = "상점/상품 검색 및 조회",
