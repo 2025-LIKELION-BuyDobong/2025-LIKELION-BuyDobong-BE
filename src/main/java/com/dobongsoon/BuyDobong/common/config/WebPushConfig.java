@@ -18,7 +18,7 @@ public class WebPushConfig {
         }
     }
 
-    @Bean
+    @Bean(name = "webPushClient")
     public PushService pushService(
             @Value("${push.vapid.public-key}") String publicKey,
             @Value("${push.vapid.private-key}") String privateKey,

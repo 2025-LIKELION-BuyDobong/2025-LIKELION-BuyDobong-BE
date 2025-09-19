@@ -4,12 +4,7 @@ import com.dobongsoon.BuyDobong.common.jwt.JwtProvider;
 import com.dobongsoon.BuyDobong.domain.auth.dto.AuthResponse;
 import com.dobongsoon.BuyDobong.domain.auth.dto.LoginRequest;
 import com.dobongsoon.BuyDobong.domain.auth.dto.RegisterRequest;
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
-import com.dobongsoon.BuyDobong.domain.consumer.model.ConsumerPreference;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerPreferenceRepository;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
 import com.dobongsoon.BuyDobong.domain.user.model.User;
-import com.dobongsoon.BuyDobong.domain.user.model.UserRole;
 import com.dobongsoon.BuyDobong.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +18,6 @@ public class AuthServiceImpl implements AuthService {
 
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
-    private final ConsumerRepository consumerRepository;
-    private final ConsumerPreferenceRepository consumerPreferenceRepository;
 
     // 회원가입
     @Override
@@ -52,20 +45,6 @@ public class AuthServiceImpl implements AuthService {
                 .role(request.getRole())
                 .build();
         userRepository.save(user);
-
-        // role이 CONSUMER면 Consumer/Preference 자동 생성
-        if (user.getRole() == UserRole.CONSUMER) {
-            if (!consumerRepository.existsByUser_Id(user.getId())) {
-                consumerRepository.save(
-                        Consumer.builder().user(user).build()
-                );
-            }
-            if (!consumerPreferenceRepository.existsByUserId(user.getId())) {
-                consumerPreferenceRepository.save(
-                        ConsumerPreference.defaultOn(user.getId()) // pushEnabled ON
-                );
-            }
-        }
 
         return AuthResponse.builder()
                 .accessToken(jwtProvider.createAccessToken(user))

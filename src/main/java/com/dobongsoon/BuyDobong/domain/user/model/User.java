@@ -27,6 +27,9 @@ public class User {
     @Column(nullable=false)
     private UserRole role;
 
+    @Column(nullable = false)
+    private boolean pushEnabled;
+
     @Column(nullable=false)
     private LocalDateTime createdAt;
 

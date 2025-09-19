@@ -2,11 +2,7 @@ package com.dobongsoon.BuyDobong.domain.product.service;
 
 import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
-import com.dobongsoon.BuyDobong.domain.consumer.notification.repository.NotificationRepository;
-import com.dobongsoon.BuyDobong.domain.consumer.notification.service.NotificationService;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerPreferenceRepository;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.FavoriteStoreRepository;
+import com.dobongsoon.BuyDobong.domain.notification.service.NotificationService;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductCreateRequest;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductDealRequest;
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductDealUpdateRequest;
