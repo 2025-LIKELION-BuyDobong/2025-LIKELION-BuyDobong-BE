@@ -6,6 +6,7 @@ import com.dobongsoon.BuyDobong.domain.favorite.repository.FavoriteStoreReposito
 import com.dobongsoon.BuyDobong.domain.product.dto.ProductDto;
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
 import com.dobongsoon.BuyDobong.domain.product.repository.ProductRepository;
+import com.dobongsoon.BuyDobong.domain.store.dto.RandomStoreResponse;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreDetailDto;
 import com.dobongsoon.BuyDobong.domain.store.model.Store;
 import com.dobongsoon.BuyDobong.domain.store.repository.StoreRepository;
@@ -25,6 +26,14 @@ public class StoreQueryService {
     private final StoreRepository storeRepository;
     private final ProductRepository productRepository;
     private final FavoriteStoreRepository favoriteStoreRepository;
+
+    @Transactional(readOnly = true)
+    public List<RandomStoreResponse> getRandomStores(int size) {
+        int n = Math.max(1, Math.min(size, 20)); // 1~20 가드
+        return storeRepository.findRandom(n).stream()
+                .map(RandomStoreResponse::from)
+                .toList();
+    }
 
     public StoreDetailDto getStoreDetail(Long storeId, Long userId) {
         Store store = storeRepository.findById(storeId)

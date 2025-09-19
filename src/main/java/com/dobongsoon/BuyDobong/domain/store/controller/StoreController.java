@@ -95,29 +95,4 @@ public class StoreController {
 
         return ResponseEntity.ok(storeService.openMyStore(userId, storeOpenRequest.getOpen()));
     }
-
-    @Operation(
-            summary = "상점 상세 조회",
-            description = """
-                    특정 상점의 상세 정보를 조회합니다.
-                    - 인증: Consumer
-                    - 요청: storeId
-                    - 응답: 상점 상세 정보 (id, name, market, open, favorite, products, deals 등)
-                    """
-    )
-    @GetMapping("/{storeId}/detail")
-    public ResponseEntity<StoreDetailDto> getStoreDetail(
-            @PathVariable Long storeId,
-            @AuthenticationPrincipal Long userId
-    ) {
-        // userId가 null이어도 동작하도록 StoreQueryService가 처리 (관심 상점 설정 = false)
-        StoreDetailDto dto = storeQueryService.getStoreDetail(storeId, userId);
-
-        // 로그인한 경우에만 최근 본 상점 기록
-        if (userId != null) {
-            recentStoreService.add(userId, storeId);
-        }
-
-        return ResponseEntity.ok(dto);
-    }
 }
