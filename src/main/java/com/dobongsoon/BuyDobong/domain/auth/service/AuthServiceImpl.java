@@ -53,20 +53,6 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         userRepository.save(user);
 
-        // role이 CONSUMER면 Consumer/Preference 자동 생성
-        if (user.getRole() == UserRole.CONSUMER) {
-            if (!consumerRepository.existsByUser_Id(user.getId())) {
-                consumerRepository.save(
-                        Consumer.builder().user(user).build()
-                );
-            }
-            if (!consumerPreferenceRepository.existsByUserId(user.getId())) {
-                consumerPreferenceRepository.save(
-                        ConsumerPreference.defaultOn(user.getId()) // pushEnabled ON
-                );
-            }
-        }
-
         return AuthResponse.builder()
                 .accessToken(jwtProvider.createAccessToken(user))
                 .role(user.getRole())
