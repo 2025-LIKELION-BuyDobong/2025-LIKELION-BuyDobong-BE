@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.martijndwars.webpush.Notification;
-import nl.martijndwars.webpush.PushService;
 import org.apache.http.HttpResponse;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -19,7 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WebPushSender {
 
-    private final PushService pushService;
+    private final @Qualifier("webPushClient") nl.martijndwars.webpush.PushService pushClient;
     private final PushSubscriptionRepository subscriptionRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -47,7 +47,7 @@ public class WebPushSender {
                         s.getAuth(),
                         payload
                 );
-                HttpResponse res = pushService.send(n);
+                HttpResponse res = pushClient.send(n);
                 int status = res.getStatusLine().getStatusCode();
 
                 if (status == 404 || status == 410) {
