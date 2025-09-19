@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class NotificationResponse {
     private Long id;
-    private Long consumerId;
+    private Long userId;
     private NotificationType type;
     private String title;
     private String body;
@@ -20,7 +20,7 @@ public class NotificationResponse {
     public static NotificationResponse from(Notification n) {
         return NotificationResponse.builder()
                 .id(n.getId())
-                .consumerId(n.getConsumer().getId())
+                .userId(n.getUser().getId())
                 .type(n.getType())
                 .title(n.getTitle())
                 .body(n.getBody())
