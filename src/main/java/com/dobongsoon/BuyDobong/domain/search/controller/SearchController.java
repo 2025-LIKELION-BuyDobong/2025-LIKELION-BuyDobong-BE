@@ -29,7 +29,7 @@ public class SearchController {
             summary = "상점/상품 검색 및 조회",
             description = """
             특정 소비자가 키워드로 상점/상품을 검색하고 조회합니다.
-            - 인증 필요: CONSUMER
+            - 인증 필요
             - 요청 파라미터:
               - query: 검색어 (필수)
               - markets: 시장 이름 목록 (선택, 0~n개 가능)
