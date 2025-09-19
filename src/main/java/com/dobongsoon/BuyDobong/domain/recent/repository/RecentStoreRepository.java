@@ -8,7 +8,9 @@ import java.util.Optional;
 
 public interface RecentStoreRepository extends JpaRepository<RecentStore, Long> {
 
-    Optional<RecentStore> findByConsumer_IdAndStore_Id(Long consumerId, Long storeId);
+    Optional<RecentStore> findByUser_IdAndStore_Id(Long userId, Long storeId);
 
-    List<RecentStore> findTop5ByConsumer_IdOrderByViewedAtDesc(Long consumerId);
+    List<RecentStore> findTop5ByUser_IdOrderByViewedAtDesc(Long userId);
+
+    long deleteByUser_IdAndStore_Id(Long userId, Long storeId);
 }

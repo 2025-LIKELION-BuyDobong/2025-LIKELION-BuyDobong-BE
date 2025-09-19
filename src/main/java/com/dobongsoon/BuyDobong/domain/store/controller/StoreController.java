@@ -4,8 +4,6 @@ import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.common.s3.S3Service;
 import com.dobongsoon.BuyDobong.domain.recent.service.RecentStoreService;
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreCreateRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreDetailDto;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreOpenRequest;
@@ -33,7 +31,6 @@ public class StoreController {
     private final StoreService storeService;
     private final StoreQueryService storeQueryService;
     private final RecentStoreService recentStoreService;
-    private final ConsumerRepository consumerRepository;
     private final S3Service s3Service;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -114,13 +111,13 @@ public class StoreController {
             @PathVariable Long storeId,
             @AuthenticationPrincipal Long userId
     ) {
-        Long consumerId = consumerRepository.findByUser_Id(userId)
-                .map(Consumer::getId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
+        if (userId == null) throw new BusinessException(ErrorCode.USER_NOT_FOUND);
 
-        StoreDetailDto dto = storeQueryService.getStoreDetail(storeId, consumerId);
+        // StoreQueryService는 userId 기반으로 favorite 계산
+        StoreDetailDto dto = storeQueryService.getStoreDetail(storeId, userId);
 
-        recentStoreService.add(consumerId, storeId); // 최근 본 상점 기록
+        // 최근 본 상점 기록
+        recentStoreService.add(userId, storeId);
 
         return ResponseEntity.ok(dto);
     }

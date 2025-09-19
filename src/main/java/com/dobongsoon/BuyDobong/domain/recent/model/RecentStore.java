@@ -1,6 +1,6 @@
 package com.dobongsoon.BuyDobong.domain.recent.model;
 
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
+import com.dobongsoon.BuyDobong.domain.user.model.User;
 import com.dobongsoon.BuyDobong.domain.store.model.Store;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,8 +17,8 @@ public class RecentStore {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name="consumer_id", nullable=false)
-    private Consumer consumer;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name="user_id", nullable=false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name="store_id", nullable=false)
     private Store store;
