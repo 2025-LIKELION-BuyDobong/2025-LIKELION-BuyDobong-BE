@@ -3,6 +3,7 @@ package com.dobongsoon.BuyDobong.domain.keyword.controller;
 import com.dobongsoon.BuyDobong.domain.keyword.dto.KeywordRegisterResponse;
 import com.dobongsoon.BuyDobong.domain.keyword.dto.KeywordRequest;
 import com.dobongsoon.BuyDobong.domain.keyword.dto.KeywordResponse;
+import com.dobongsoon.BuyDobong.domain.keyword.dto.PopularKeywordDto;
 import com.dobongsoon.BuyDobong.domain.keyword.model.UserKeyword;
 import com.dobongsoon.BuyDobong.domain.keyword.service.UserKeywordService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -92,5 +93,19 @@ public class UserKeywordController {
     ) {
         userKeywordService.remove(userId, keywordId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "인기 상품 키워드 Top 10 조회",
+            description = """
+            관심 설정이 많이 된 키워드를 내림차순으로 상위 10개 조회합니다.
+            => 반환되는 리스트 순서대로 1~10위
+            - 인증 필요 X
+            - 응답: [{ "word": "김밥", "count": 42 }, ...]
+            """
+    )
+    @GetMapping("/popular")
+    public ResponseEntity<List<PopularKeywordDto>> getPopularKeywords() {
+        return ResponseEntity.ok(userKeywordService.getTop10Keywords());
     }
 }

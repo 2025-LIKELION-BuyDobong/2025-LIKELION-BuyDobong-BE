@@ -2,6 +2,7 @@ package com.dobongsoon.BuyDobong.domain.keyword.service;
 
 import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
+import com.dobongsoon.BuyDobong.domain.keyword.dto.PopularKeywordDto;
 import com.dobongsoon.BuyDobong.domain.keyword.model.UserKeyword;
 import com.dobongsoon.BuyDobong.domain.keyword.model.Keyword;
 import com.dobongsoon.BuyDobong.domain.keyword.repository.UserKeywordRepository;
@@ -18,6 +19,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class UserKeywordService {
+
+    private static final int TOP_N = 10;
 
     private final UserRepository userRepository;
     private final KeywordRepository keywordRepository;
@@ -69,5 +72,15 @@ public class UserKeywordService {
         return keywordRepository.findByWord(word)
                 .map(k -> userKeywordRepository.existsByUser_IdAndKeyword_Id(userId, k.getId()))
                 .orElse(false);
+    }
+
+    // 인기 키워드 top 10 조회
+    public List<PopularKeywordDto> getTop10Keywords() {
+        return userKeywordRepository.findTopKeywords(TOP_N).stream()
+                .map(r -> new PopularKeywordDto(
+                        (String) r[0],                 // word
+                        ((Number) r[1]).longValue()    // cnt
+                ))
+                .toList();
     }
 }

@@ -39,6 +39,7 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/api/sms/**",
                                 "/api/search/**",
+                                "/api/keyword/popular",
                                 "/api/store/random",
                                 "/api/store/*/detail",
                                 "/api/vapid"
