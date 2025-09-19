@@ -26,7 +26,7 @@ public class StoreQueryService {
     private final ProductRepository productRepository;
     private final FavoriteStoreRepository favoriteStoreRepository;
 
-    public StoreDetailDto getStoreDetail(Long storeId, Long consumerId) {
+    public StoreDetailDto getStoreDetail(Long storeId, Long userId) {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
@@ -51,8 +51,8 @@ public class StoreQueryService {
                 .toList();
 
         boolean favorite = false;
-        if (consumerId != null) {
-            favorite = favoriteStoreRepository.existsByConsumer_IdAndStoreId(consumerId, storeId);
+        if (userId != null) {
+            favorite = favoriteStoreRepository.existsByUser_IdAndStoreId(userId, storeId);
         }
 
         return StoreDetailDto.of(store, favorite, deals, products);

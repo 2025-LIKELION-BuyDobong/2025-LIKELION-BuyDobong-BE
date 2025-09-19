@@ -1,6 +1,6 @@
 package com.dobongsoon.BuyDobong.domain.favorite.model;
 
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
+import com.dobongsoon.BuyDobong.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,9 +19,9 @@ public class FavoriteStore {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "consumer_id", nullable = false)
-    private Consumer consumer;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private Long storeId;

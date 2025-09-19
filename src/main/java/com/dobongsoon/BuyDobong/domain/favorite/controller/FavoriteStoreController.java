@@ -1,11 +1,7 @@
 package com.dobongsoon.BuyDobong.domain.favorite.controller;
 
-import com.dobongsoon.BuyDobong.common.exception.BusinessException;
-import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.domain.favorite.dto.FavoriteStoreRequest;
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
 import com.dobongsoon.BuyDobong.domain.favorite.dto.FavoriteStoreResponse;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
 import com.dobongsoon.BuyDobong.domain.favorite.service.FavoriteStoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -19,36 +15,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/consumer/favorite")
+@RequestMapping("/api/favorite")
 @RequiredArgsConstructor
 public class FavoriteStoreController {
 
     private final FavoriteStoreService favoriteStoreService;
-    private final ConsumerRepository consumerRepository;
-
-    private Long consumerIdOrThrow(Long userId) {
-        return consumerRepository.findByUser_Id(userId)
-                .map(Consumer::getId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
-    }
 
     @Operation(
             summary = "관심 상점 등록",
             description = """
-        특정 소비자가 상점을 관심 상점으로 등록합니다.
-        - 인증 필요: CONSUMER
+        사용자가 상점을 관심 상점으로 등록합니다.
+        - 인증 필요
         - 요청: storeId
         - 응답: 등록된 상점 정보 (id, name, market, isOpen, createdAt)
         """
     )
     @PostMapping
-    @PreAuthorize("hasRole('CONSUMER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<FavoriteStoreResponse> addFavorite(
             @AuthenticationPrincipal Long userId,
             @RequestBody @Valid FavoriteStoreRequest request
     ) {
-        Long consumerId = consumerIdOrThrow(userId);
-        FavoriteStoreResponse body = favoriteStoreService.addFavorite(consumerId, request.getStoreId());
+        FavoriteStoreResponse body = favoriteStoreService.addFavorite(userId, request.getStoreId());
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
@@ -56,39 +44,37 @@ public class FavoriteStoreController {
     @Operation(
             summary = "관심 상점 조회",
             description = """
-        특정 소비자의 관심 상점 목록을 조회합니다.
-        - 인증 필요: CONSUMER
+        사용자의 관심 상점 목록을 조회합니다.
+        - 인증 필요
         - 요청: storeId
         - 응답: 조회된 상점 목록과 정보 (id, name, market, imageUrl, isOpen, createdAt)
         """
     )
     @GetMapping
-    @PreAuthorize("hasRole('CONSUMER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<FavoriteStoreResponse>> getFavorites(
             @AuthenticationPrincipal Long userId
     ) {
-        Long consumerId = consumerIdOrThrow(userId);
-        List<FavoriteStoreResponse> favorites = favoriteStoreService.getFavorites(consumerId);
+        List<FavoriteStoreResponse> favorites = favoriteStoreService.getFavorites(userId);
         return ResponseEntity.ok(favorites);
     }
 
     @Operation(
             summary = "관심 상점 해제",
             description = """
-        특정 소비자가 등록한 관심 상점을 해제합니다.
-        - 인증 필요: CONSUMER
+        사용자가 등록한 관심 상점을 해제합니다.
+        - 인증 필요
         - 요청: storeId
         - 응답: 성공 시 204 No Content
         """
     )
     @DeleteMapping("/{storeId}")
-    @PreAuthorize("hasRole('CONSUMER')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> removeFavorite(
             @AuthenticationPrincipal Long userId,
             @PathVariable("storeId") Long storeId
     ) {
-        Long consumerId = consumerIdOrThrow(userId);
-        favoriteStoreService.removeFavorite(consumerId, storeId);
+        favoriteStoreService.removeFavorite(userId, storeId);
         return ResponseEntity.noContent().build();
     }
 }

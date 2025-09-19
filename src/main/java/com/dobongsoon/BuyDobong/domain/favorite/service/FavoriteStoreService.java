@@ -3,9 +3,9 @@ package com.dobongsoon.BuyDobong.domain.favorite.service;
 import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.domain.favorite.dto.FavoriteStoreResponse;
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
+import com.dobongsoon.BuyDobong.domain.user.model.User;
 import com.dobongsoon.BuyDobong.domain.favorite.model.FavoriteStore;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
+import com.dobongsoon.BuyDobong.domain.user.repository.UserRepository;
 import com.dobongsoon.BuyDobong.domain.favorite.repository.FavoriteStoreRepository;
 import com.dobongsoon.BuyDobong.domain.store.model.Store;
 import com.dobongsoon.BuyDobong.domain.store.repository.StoreRepository;
@@ -23,24 +23,25 @@ import java.util.stream.Collectors;
 public class FavoriteStoreService {
 
     private final FavoriteStoreRepository favoriteStoreRepository;
-    private final ConsumerRepository consumerRepository;
+    private final UserRepository userRepository;
     private final StoreRepository storeRepository;
 
     // 관심 상점 등록
     @Transactional
-    public FavoriteStoreResponse addFavorite(Long consumerId, Long storeId) {
-        if (favoriteStoreRepository.existsByConsumer_IdAndStoreId(consumerId, storeId)) {
+    public FavoriteStoreResponse addFavorite(Long userId, Long storeId) {
+        if (favoriteStoreRepository.existsByUser_IdAndStoreId(userId, storeId)) {
             throw new BusinessException(ErrorCode.FAVORITE_ALREADY_EXISTS);
         }
 
-        Consumer consumer = consumerRepository.findById(consumerId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
+        // 존재 검증
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
 
         FavoriteStore saved = favoriteStoreRepository.save(
-                FavoriteStore.builder().consumer(consumer).storeId(storeId).build()
+                FavoriteStore.builder().user(user).storeId(storeId).build()
         );
 
         return FavoriteStoreResponse.builder()
@@ -55,9 +56,9 @@ public class FavoriteStoreService {
 
     // 관심 상점 목록 조회
     @Transactional(readOnly = true)
-    public List<FavoriteStoreResponse> getFavorites(Long consumerId) {
+    public List<FavoriteStoreResponse> getFavorites(Long userId) {
         List<FavoriteStore> favorites =
-                favoriteStoreRepository.findByConsumer_IdOrderByCreatedAtDesc(consumerId);
+                favoriteStoreRepository.findByUser_IdOrderByCreatedAtDesc(userId);
 
         if (favorites.isEmpty())    return List.of();
 
@@ -89,11 +90,11 @@ public class FavoriteStoreService {
     }
 
     // 관심 상점 해제
-    public void removeFavorite(Long consumerId, Long storeId) {
-        boolean exists = favoriteStoreRepository.existsByConsumer_IdAndStoreId(consumerId, storeId);
+    public void removeFavorite(Long userId, Long storeId) {
+        boolean exists = favoriteStoreRepository.existsByUser_IdAndStoreId(userId, storeId);
         if (!exists) {
-            throw new BusinessException(ErrorCode.STORE_NOT_FOUND);
+            throw new BusinessException(ErrorCode.FAVORITE_NOT_FOUND);
         }
-        favoriteStoreRepository.deleteByConsumer_IdAndStoreId(consumerId, storeId);
+        favoriteStoreRepository.deleteByUser_IdAndStoreId(userId, storeId);
     }
 }

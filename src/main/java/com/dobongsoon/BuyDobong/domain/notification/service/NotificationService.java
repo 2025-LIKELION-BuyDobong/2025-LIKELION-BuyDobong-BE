@@ -9,7 +9,7 @@ import com.dobongsoon.BuyDobong.domain.notification.dto.NotificationResponse;
 import com.dobongsoon.BuyDobong.domain.notification.model.Notification;
 import com.dobongsoon.BuyDobong.domain.notification.repository.NotificationRepository;
 import com.dobongsoon.BuyDobong.domain.push.service.WebPushSender;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.*;
+import com.dobongsoon.BuyDobong.domain.user.repository.*;
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
 import com.dobongsoon.BuyDobong.domain.store.model.Store;
 import com.dobongsoon.BuyDobong.domain.store.repository.StoreRepository;
@@ -51,8 +51,8 @@ public class NotificationService {
 
         // 웹 푸시도 DB 알림 내용 그대로 전송
         for (Notification n : notifications) {
-            webPushSender.sendToConsumer(
-                    n.getConsumer().getId(),
+            webPushSender.sendToUser(
+                    n.getUser().getId(),
                     n.getTitle(),
                     n.getBody(),
                     "https://buy-dobong.vercel.app/marketDetil/" + storeId

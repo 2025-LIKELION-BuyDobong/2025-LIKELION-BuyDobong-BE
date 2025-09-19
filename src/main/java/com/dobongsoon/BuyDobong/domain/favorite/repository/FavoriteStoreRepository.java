@@ -10,22 +10,21 @@ import java.util.List;
 public interface FavoriteStoreRepository extends JpaRepository<FavoriteStore, Long> {
 
     // 관심 상점 목록 조회
-    List<FavoriteStore> findByConsumer_IdOrderByCreatedAtDesc(Long consumerId);
+    List<FavoriteStore> findByUser_IdOrderByCreatedAtDesc(Long userId);
 
     // 특정 상점을 이미 관심 등록했는지 여부
-    boolean existsByConsumer_IdAndStoreId(Long consumerId, Long storeId);
+    boolean existsByUser_IdAndStoreId(Long userId, Long storeId);
 
     // 관심 상점으로 등록한 소비자 ID 목록
     @Query("""
-    select c.id
-    from FavoriteStore f
-    join f.consumer c
-    left join ConsumerPreference p on p.userId = c.user.id
-    where f.storeId = :storeId
-      and (p is null or p.pushEnabled = true)
+        select u.id
+        from FavoriteStore f
+        join f.user u
+        where f.storeId = :storeId
+          and u.pushEnabled = true
     """)
-    List<Long> findPushEnabledConsumerIdsByStoreId(@Param("storeId") Long storeId);
+    List<Long> findPushEnabledUserIdsByStoreId(@Param("storeId") Long storeId);
 
     // 관심 상점 해제
-    void deleteByConsumer_IdAndStoreId(Long consumerId, Long storeId);
+    void deleteByUser_IdAndStoreId(Long userId, Long storeId);
 }
