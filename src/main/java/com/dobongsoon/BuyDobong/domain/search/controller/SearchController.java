@@ -1,9 +1,5 @@
 package com.dobongsoon.BuyDobong.domain.search.controller;
 
-import com.dobongsoon.BuyDobong.common.exception.BusinessException;
-import com.dobongsoon.BuyDobong.common.response.ErrorCode;
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
-import com.dobongsoon.BuyDobong.domain.consumer.repository.ConsumerRepository;
 import com.dobongsoon.BuyDobong.domain.search.dto.SearchResponse;
 import com.dobongsoon.BuyDobong.domain.search.service.SearchService;
 import com.dobongsoon.BuyDobong.domain.store.model.MarketName;
@@ -22,7 +18,6 @@ import java.util.List;
 public class SearchController {
 
     private final SearchService searchService;
-    private final ConsumerRepository consumerRepository;
 
     /**
      * 예) /api/consumer/search?query=케이크
@@ -47,18 +42,14 @@ public class SearchController {
             """
     )
     @GetMapping
-    @PreAuthorize("hasRole('CONSUMER')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<SearchResponse>> search(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal Long userId, // 비로그인 시 null
             @RequestParam String query,
             @RequestParam(required = false) List<MarketName> markets,
             @RequestParam(required = false, defaultValue = "false") boolean onlyDeal
     ) {
-        Long consumerId = consumerRepository.findByUser_Id(userId)
-                .map(Consumer::getId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CONSUMER_NOT_FOUND));
-
-        List<SearchResponse> result = searchService.search(consumerId, query, markets, onlyDeal);
+        List<SearchResponse> result = searchService.search(userId, query, markets, onlyDeal);
         return ResponseEntity.ok(result);
     }
 }
