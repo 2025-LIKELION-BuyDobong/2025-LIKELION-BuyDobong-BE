@@ -39,7 +39,7 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/api/sms/**",
                                 "/api/search/**",
-                                "/api/store/**/detail",
+                                "/api/store/*/detail",
                                 "/api/vapid"
                         ).permitAll()
                         .anyRequest().authenticated()
