@@ -1,6 +1,6 @@
 package com.dobongsoon.BuyDobong.domain.keyword.model;
 
-import com.dobongsoon.BuyDobong.domain.consumer.model.Consumer;
+import com.dobongsoon.BuyDobong.domain.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -8,18 +8,25 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "consumer_keyword",
-        uniqueConstraints = @UniqueConstraint(name="uk_consumer_keyword",
-                columnNames={"consumer_id", "keyword_id"}))
+@Table(
+        name = "user_keyword",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_user_keyword", columnNames = {"user_id", "keyword_id"})
+        },
+        indexes = {
+                @Index(name = "idx_user_keyword_user", columnList = "user_id"),
+                @Index(name = "idx_user_keyword_keyword", columnList = "keyword_id")
+        }
+)
 @Getter @NoArgsConstructor @AllArgsConstructor @Builder
-public class ConsumerKeyword {
+public class UserKeyword {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "consumer_id")
-    private Consumer consumer;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "keyword_id")

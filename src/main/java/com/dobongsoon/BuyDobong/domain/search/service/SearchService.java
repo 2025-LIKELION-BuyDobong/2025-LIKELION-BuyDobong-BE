@@ -1,6 +1,6 @@
 package com.dobongsoon.BuyDobong.domain.search.service;
 
-import com.dobongsoon.BuyDobong.domain.keyword.service.ConsumerKeywordService;
+import com.dobongsoon.BuyDobong.domain.keyword.service.UserKeywordService;
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
 import com.dobongsoon.BuyDobong.domain.product.repository.ProductRepository;
 import com.dobongsoon.BuyDobong.domain.search.dto.SearchResponse;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class SearchService {
 
     private final ProductRepository productRepository;
-    private final ConsumerKeywordService consumerKeywordService;
+    private final UserKeywordService userKeywordService;
 
     public List<SearchResponse> search(Long consumerId,
                                        String query,
@@ -47,7 +47,7 @@ public class SearchService {
                 .toList();
 
         // 관심 키워드 여부 (검색어 기준)
-        boolean interested = (consumerId != null) && consumerKeywordService.isInterested(consumerId, q);
+        boolean interested = (consumerId != null) && userKeywordService.isInterested(consumerId, q);
 
         // 스토어 ID 기준 그룹핑 (엔티티를 키로 안 쓰는 이유: 프록시/equals 이슈 회피)
         Map<Long, List<Product>> byStoreId = filtered.stream()

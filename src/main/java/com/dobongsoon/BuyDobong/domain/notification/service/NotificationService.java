@@ -3,13 +3,11 @@ package com.dobongsoon.BuyDobong.domain.notification.service;
 import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
 import com.dobongsoon.BuyDobong.domain.favorite.repository.FavoriteStoreRepository;
-import com.dobongsoon.BuyDobong.domain.keyword.repository.ConsumerKeywordHit;
-import com.dobongsoon.BuyDobong.domain.keyword.repository.ConsumerKeywordRepository;
+import com.dobongsoon.BuyDobong.domain.keyword.repository.UserKeywordRepository;
 import com.dobongsoon.BuyDobong.domain.notification.dto.NotificationResponse;
 import com.dobongsoon.BuyDobong.domain.notification.model.Notification;
 import com.dobongsoon.BuyDobong.domain.notification.repository.NotificationRepository;
 import com.dobongsoon.BuyDobong.domain.push.service.WebPushSender;
-import com.dobongsoon.BuyDobong.domain.user.repository.*;
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
 import com.dobongsoon.BuyDobong.domain.store.model.Store;
 import com.dobongsoon.BuyDobong.domain.store.repository.StoreRepository;
@@ -26,7 +24,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final ConsumerRepository consumerRepository;
-    private final ConsumerKeywordRepository consumerKeywordRepository;
+    private final UserKeywordRepository userKeywordRepository;
     private final FavoriteStoreRepository favoriteStoreRepository;
     private final StoreRepository storeRepository;
 
@@ -66,7 +64,7 @@ public class NotificationService {
 
         // 관심 키워드가 productName에 매칭되고, push ON인 소비자 + 해당 키워드(word)까지 함께 조회
         List<ConsumerKeywordHit> hits =
-                consumerKeywordRepository.findHitsForProductName(productName);
+                userKeywordRepository.findHitsForProductName(productName);
 
         if (hits.isEmpty()) return;
 

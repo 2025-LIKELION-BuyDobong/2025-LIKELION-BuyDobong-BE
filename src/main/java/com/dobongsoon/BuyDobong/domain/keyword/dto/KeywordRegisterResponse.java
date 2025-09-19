@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Builder
 public record KeywordRegisterResponse(
         Long id,
-        Long consumerId,
+        Long userId,
         String word,
         LocalDateTime createdAt,
         boolean success
