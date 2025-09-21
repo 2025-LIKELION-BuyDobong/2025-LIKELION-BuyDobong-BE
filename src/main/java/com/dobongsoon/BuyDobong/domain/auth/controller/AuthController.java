@@ -4,11 +4,13 @@ import com.dobongsoon.BuyDobong.domain.auth.dto.AuthResponse;
 import com.dobongsoon.BuyDobong.domain.auth.dto.LoginRequest;
 import com.dobongsoon.BuyDobong.domain.auth.dto.RegisterRequest;
 import com.dobongsoon.BuyDobong.domain.auth.service.AuthService;
+import com.dobongsoon.BuyDobong.domain.auth.service.LogoutService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
+    private final LogoutService logoutService;
 
     @PostMapping("/register")
     @Operation(summary = "회원가입")
@@ -28,5 +31,13 @@ public class AuthController {
     @Operation(summary = "로그인")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request){
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃")
+    public ResponseEntity<Void> logout(
+            @RequestHeader(name = "Authorization", required = false) String authorizationHeader) {
+        logoutService.logout(authorizationHeader);
+        return ResponseEntity.noContent().build();
     }
 }
