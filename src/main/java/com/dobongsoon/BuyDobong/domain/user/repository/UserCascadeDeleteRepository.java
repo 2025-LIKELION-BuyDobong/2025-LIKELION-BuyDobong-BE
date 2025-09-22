@@ -63,6 +63,14 @@ public class UserCascadeDeleteRepository {
                 .executeUpdate();
     }
 
+    // 즐겨찾기 - 상점 기준
+    public int deleteFavoriteStoreByStoreId(Long storeId) {
+        if (storeId == null) return 0;
+        return em.createQuery("delete from FavoriteStore f where f.storeId = :sid")
+                .setParameter("sid", storeId)
+                .executeUpdate();
+    }
+
     public int deleteRecentStoresByUserId(Long userId) {
         return em.createQuery("delete from RecentStore r where r.user.id = :uid")
                 .setParameter("uid", userId)

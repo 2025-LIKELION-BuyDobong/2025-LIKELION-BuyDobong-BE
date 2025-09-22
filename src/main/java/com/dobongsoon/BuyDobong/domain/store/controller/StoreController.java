@@ -95,4 +95,30 @@ public class StoreController {
 
         return ResponseEntity.ok(storeService.openMyStore(userId, storeOpenRequest.getOpen()));
     }
+
+    @DeleteMapping("/me/image")
+    @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "상점 이미지 삭제")
+    public ResponseEntity<StoreResponse> deleteMyStoreImage(@AuthenticationPrincipal Long userId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        storeService.deleteMyStoreImage(userId);
+        StoreResponse response = storeService.getMyStore(userId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/me")
+    @PreAuthorize("hasRole('MERCHANT')")
+    @Operation(summary = "내 상점 삭제")
+    public ResponseEntity<Void> deleteMyStore(@AuthenticationPrincipal Long userId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        storeService.deleteMyStore(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

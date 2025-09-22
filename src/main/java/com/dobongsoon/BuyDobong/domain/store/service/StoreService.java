@@ -9,4 +9,6 @@ public interface StoreService {
     StoreResponse update(Long userId, StoreUpdateRequest request);
     StoreResponse getMyStore(Long userId);
     StoreResponse openMyStore(Long userId, boolean open);
+    void deleteMyStoreImage(Long userId);
+    void deleteMyStore(Long userId);
 }

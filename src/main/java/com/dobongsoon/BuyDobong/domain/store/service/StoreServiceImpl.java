@@ -2,7 +2,9 @@ package com.dobongsoon.BuyDobong.domain.store.service;
 
 import com.dobongsoon.BuyDobong.common.exception.BusinessException;
 import com.dobongsoon.BuyDobong.common.response.ErrorCode;
+import com.dobongsoon.BuyDobong.domain.favorite.repository.FavoriteStoreRepository;
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
+import com.dobongsoon.BuyDobong.domain.product.repository.ProductRepository;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreCreateRequest;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreResponse;
 import com.dobongsoon.BuyDobong.domain.store.dto.StoreUpdateRequest;
@@ -10,6 +12,7 @@ import com.dobongsoon.BuyDobong.domain.store.model.MarketName;
 import com.dobongsoon.BuyDobong.domain.store.model.Store;
 import com.dobongsoon.BuyDobong.domain.store.repository.StoreRepository;
 import com.dobongsoon.BuyDobong.domain.user.model.User;
+import com.dobongsoon.BuyDobong.domain.user.repository.UserCascadeDeleteRepository;
 import com.dobongsoon.BuyDobong.domain.user.repository.UserRepository;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -26,7 +29,7 @@ public class StoreServiceImpl implements StoreService {
 
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
-
+    private final UserCascadeDeleteRepository userCascadeDeleteRepository;
 
     @Override
     public StoreResponse register(Long userId, StoreCreateRequest request) {
@@ -100,5 +103,33 @@ public class StoreServiceImpl implements StoreService {
         store.changeOpen(open);
 
         return StoreResponse.from(store);
+    }
+
+    @Override
+    public void deleteMyStoreImage(Long userId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Store store = storeRepository.findByUser_Id(userId).orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        store.updateStore(store.getName(), store.getMarket(), store.getLatitude(), store.getLongitude(), null);
+    }
+
+    @Override
+    public void deleteMyStore(Long userId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        Store store = storeRepository.findByUser_Id(userId).orElseThrow(() -> new BusinessException(ErrorCode.STORE_NOT_FOUND));
+
+        Long storeId = store.getId();
+
+        userCascadeDeleteRepository.deleteProductsByStoreId(storeId);
+        userCascadeDeleteRepository.deleteRecentStoresByStoreId(storeId);
+        userCascadeDeleteRepository.deleteFavoriteStoreByStoreId(storeId);
+
+        userCascadeDeleteRepository.deleteStoreById(storeId);
     }
 }
