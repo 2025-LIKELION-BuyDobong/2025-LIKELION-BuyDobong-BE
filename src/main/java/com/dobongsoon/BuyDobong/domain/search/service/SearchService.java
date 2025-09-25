@@ -6,6 +6,7 @@ import com.dobongsoon.BuyDobong.domain.product.repository.ProductRepository;
 import com.dobongsoon.BuyDobong.domain.search.dto.SearchResponse;
 import com.dobongsoon.BuyDobong.domain.store.model.MarketName;
 import com.dobongsoon.BuyDobong.domain.store.model.Store;
+import com.dobongsoon.BuyDobong.domain.store.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,84 +23,93 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class SearchService {
 
+    private final StoreRepository storeRepository;
     private final ProductRepository productRepository;
     private final UserKeywordService userKeywordService;
 
-    public List<SearchResponse> search(Long consumerId,
+    public List<SearchResponse> search(Long userId,
                                        String query,
                                        List<MarketName> markets,
                                        boolean onlyDeal) {
-
         String q = query == null ? "" : query.trim();
         if (q.isEmpty()) return List.of();
 
-        // 파라미터 정규화(빈 리스트 → null 로 JPQL 조건 통과)
         List<MarketName> marketFilter = (markets == null || markets.isEmpty()) ? null : markets;
 
-        // 데이터 조회
+        // 1. 상품 기준 검색
         List<Product> rows = productRepository.search(q, marketFilter);
+        var now = java.time.LocalDateTime.now();
+        if (onlyDeal) {
+            rows = rows.stream().filter(p -> p.isDealActive(now)).toList();
+        }
 
-        LocalDateTime now = LocalDateTime.now();
+        boolean interested = (userId != null) && userKeywordService.isInterested(userId, q);
 
-        // onlyDeal=true면 특가만 남김
-        List<Product> filtered = rows.stream()
-                .filter(p -> !onlyDeal || p.isDealActive(now))
-                .toList();
-
-        // 관심 키워드 여부 (검색어 기준)
-        boolean interested = (consumerId != null) && userKeywordService.isInterested(consumerId, q);
-
-        // 스토어 ID 기준 그룹핑 (엔티티를 키로 안 쓰는 이유: 프록시/equals 이슈 회피)
-        Map<Long, List<Product>> byStoreId = filtered.stream()
+        // storeId -> products 매핑
+        Map<Long, List<Product>> byStoreId = rows.stream()
                 .collect(Collectors.groupingBy(p -> p.getStore().getId(),
                         LinkedHashMap::new, Collectors.toList()));
 
-        // 정렬 기준
         Comparator<Product> byProductName = Comparator.comparing(Product::getName);
-        Comparator<Map.Entry<Long, List<Product>>> byStoreName =
-                Comparator.comparing(e -> e.getValue().get(0).getStore().getName());
-
-        // DTO 매핑
-        return byStoreId.entrySet().stream()
-                .sorted(byStoreName) // 상점명 ㄱㄴㄷ 순
+        List<SearchResponse> productSide = byStoreId.entrySet().stream()
+                .sorted(Comparator.comparing(e -> e.getValue().get(0).getStore().getName()))
                 .map(entry -> {
-                    List<Product> ps = entry.getValue();
-                    Store s = ps.get(0).getStore();
-
-                    List<SearchResponse.ProductDto> productDtos = ps.stream()
-                            .sorted(byProductName) // 상품명 ㄱㄴㄷ 순
-                            .map(p -> {
-                                boolean dealActive = p.isDealActive(now);
-                                Long displayPrice = p.getDisplayPrice(now);
-                                String displayUnit = p.getDisplayUnit(now);
-
-                                return SearchResponse.ProductDto.builder()
-                                        .id(p.getId())
-                                        .name(p.getName())
-                                        .displayPrice(displayPrice)
-                                        .displayUnit(displayUnit)
-                                        .dealActive(dealActive)
-                                        .dealStartAt(p.getDealStartAt())
-                                        .dealEndAt(p.getDealEndAt())
-                                        .build();
-                            })
+                    Store s = entry.getValue().get(0).getStore();
+                    List<SearchResponse.ProductDto> products = entry.getValue().stream()
+                            .sorted(byProductName)
+                            .map(p -> SearchResponse.ProductDto.builder()
+                                    .id(p.getId())
+                                    .name(p.getName())
+                                    .displayPrice(p.getDisplayPrice(now))
+                                    .displayUnit(p.getDisplayUnit(now))
+                                    .dealActive(p.isDealActive(now))
+                                    .dealStartAt(p.getDealStartAt())
+                                    .dealEndAt(p.getDealEndAt())
+                                    .build())
                             .toList();
 
-                    SearchResponse.StoreDto storeDto = SearchResponse.StoreDto.builder()
-                            .id(s.getId())
-                            .name(s.getName())
-                            .market(s.getMarket().name())
-                            .marketLabel(s.getMarket().getLabel())
-                            .imageUrl(s.getImageUrl())
-                            .open(s.isOpen())
-                            .build();
-
                     return SearchResponse.builder()
-                            .store(storeDto)
-                            .products(productDtos)
+                            .store(SearchResponse.StoreDto.builder()
+                                    .id(s.getId())
+                                    .name(s.getName())
+                                    .market(s.getMarket().name())
+                                    .marketLabel(s.getMarket().getLabel())
+                                    .imageUrl(s.getImageUrl())
+                                    .open(s.isOpen())
+                                    .build())
+                            .products(products)
                             .interested(interested)
                             .build();
                 })
                 .toList();
+
+        // 2. 상점명 검색 (상품 없어도 포함)
+        List<Store> storesByName = storeRepository.searchByName(q, marketFilter);
+
+        // 3. 상품 결과에 이미 포함된 상점 제외하고, 빈 상품 리스트로 추가
+        var included = byStoreId.keySet();
+        List<SearchResponse> storeOnly = storesByName.stream()
+                .filter(s -> !included.contains(s.getId()))
+                .sorted(Comparator.comparing(Store::getName))
+                .map(s -> SearchResponse.builder()
+                        .store(SearchResponse.StoreDto.builder()
+                                .id(s.getId())
+                                .name(s.getName())
+                                .market(s.getMarket().name())
+                                .marketLabel(s.getMarket().getLabel())
+                                .imageUrl(s.getImageUrl())
+                                .open(s.isOpen())
+                                .build())
+                        .products(List.of())   // 상품 없음
+                        .interested(interested)
+                        .build())
+                .toList();
+
+        // 합치기
+        List<SearchResponse> merged = new java.util.ArrayList<SearchResponse>(productSide.size() + storeOnly.size());
+        merged.addAll(productSide);
+        merged.addAll(storeOnly);
+
+        return merged;
     }
 }
