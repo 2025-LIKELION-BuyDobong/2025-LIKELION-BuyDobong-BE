@@ -9,7 +9,6 @@ import com.dobongsoon.BuyDobong.domain.notification.model.Notification;
 import com.dobongsoon.BuyDobong.domain.notification.repository.NotificationRepository;
 import com.dobongsoon.BuyDobong.domain.push.queue.PushJobPayload;
 import com.dobongsoon.BuyDobong.domain.push.queue.PushJobProducer;
-import com.dobongsoon.BuyDobong.domain.push.service.WebPushSender;
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
 import com.dobongsoon.BuyDobong.domain.store.model.Store;
 import com.dobongsoon.BuyDobong.domain.store.repository.StoreRepository;
@@ -32,7 +31,6 @@ public class NotificationService {
     private final FavoriteStoreRepository favoriteStoreRepository;
     private final StoreRepository storeRepository;
 
-    // private final WebPushSender webPushSender;
     private final PushJobProducer pushJobProducer;
 
     /** 상점 특가 알림 (팬아웃) */
@@ -54,17 +52,7 @@ public class NotificationService {
 
         String deeplink = "https://buy-dobong.vercel.app/marketDetil/" + storeId;
 
-        /** 서버에서 알림 즉시 발송
-        for (Notification n : notifications) {
-            webPushSender.sendToUser(
-                    n.getUser().getId(),
-                    n.getTitle(),
-                    n.getBody(),
-                    deeplink
-            );
-        } */
-
-        // 즉시 발송 → 큐 적재로 변경
+        // 알림 큐 적재
         for (Notification n : notifications) {
             pushJobProducer.enqueue(new PushJobPayload(
                     n.getUser().getId(),
@@ -104,15 +92,7 @@ public class NotificationService {
             String deeplink = "https://buy-dobong.vercel.app/keywordSearch?query="
                     + java.net.URLEncoder.encode(keyword, java.nio.charset.StandardCharsets.UTF_8);
 
-            /** 서버에서 알림 즉시 발송
-            webPushSender.sendToUser(
-                    n.getUser().getId(),
-                    n.getTitle(),
-                    n.getBody(),
-                    deeplink
-            ); */
-
-            // 즉시 발송 → 큐 적재로 변경
+            // 알림 큐 적재
             pushJobProducer.enqueue(new PushJobPayload(
                     n.getUser().getId(),
                     n.getTitle(),
