@@ -47,13 +47,18 @@ docker compose up -d app
 📦2025-LIKELION-BuyDobong-BE
  ┣ 📂src/main/java/com/dobongsoon/BuyDobong
  ┃ ┣ 📂common         # 공통 설정/예외/응답
- ┃ ┣ 📂domain
- ┃ ┃ ┣ 📂consumer     # 소비자(관심 키워드, 관심 상점, 최근 본 상점)
- ┃ ┃ ┣ 📂store        # 상점
- ┃ ┃ ┣ 📂product      # 상품
- ┃ ┃ ┣ 📂notification # 알림
- ┃ ┃ ┗ 📂push         # PWA Push
- ┃ ┗ 📂...
+ ┃ ┗ 📂domain
+ ┃   ┣ 📂auth    	  # 회원가입/로그인
+ ┃   ┣ 📂favorite     # 관심 상점
+ ┃   ┣ 📂keyword      # 관심 키워드
+ ┃   ┣ 📂notification # 알림
+ ┃   ┣ 📂product      # 상품
+ ┃   ┣ 📂push         # PWA 웹 푸시
+ ┃   ┣ 📂recent       # 최근 본 상점
+ ┃   ┣ 📂search       # 상점/상품 검색
+ ┃   ┣ 📂sms          # sms 인증
+ ┃   ┣ 📂store        # 상점
+ ┃   ┗ 📂user         # 사용자
  ┣ 📂src/main/resources
  ┃ ┗ 📜application-prod.yml
  ┣ 📜build.gradle
