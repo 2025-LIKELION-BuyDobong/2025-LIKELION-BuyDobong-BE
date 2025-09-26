@@ -7,6 +7,8 @@ import com.dobongsoon.BuyDobong.domain.keyword.repository.UserKeywordRepository;
 import com.dobongsoon.BuyDobong.domain.notification.dto.NotificationResponse;
 import com.dobongsoon.BuyDobong.domain.notification.model.Notification;
 import com.dobongsoon.BuyDobong.domain.notification.repository.NotificationRepository;
+import com.dobongsoon.BuyDobong.domain.push.queue.PushJobPayload;
+import com.dobongsoon.BuyDobong.domain.push.queue.PushJobProducer;
 import com.dobongsoon.BuyDobong.domain.push.service.WebPushSender;
 import com.dobongsoon.BuyDobong.domain.product.model.Product;
 import com.dobongsoon.BuyDobong.domain.store.model.Store;
@@ -30,7 +32,8 @@ public class NotificationService {
     private final FavoriteStoreRepository favoriteStoreRepository;
     private final StoreRepository storeRepository;
 
-    private final WebPushSender webPushSender;
+    // private final WebPushSender webPushSender;
+    private final PushJobProducer pushJobProducer;
 
     /** 상점 특가 알림 (팬아웃) */
     public void fanoutStoreDeal(Long storeId, String productName) {
@@ -49,8 +52,9 @@ public class NotificationService {
 
         notificationRepository.saveAll(notifications);
 
-        // 웹 푸시가 DB 알림 내용 그대로 전송
         String deeplink = "https://buy-dobong.vercel.app/marketDetil/" + storeId;
+
+        /** 서버에서 알림 즉시 발송
         for (Notification n : notifications) {
             webPushSender.sendToUser(
                     n.getUser().getId(),
@@ -58,6 +62,16 @@ public class NotificationService {
                     n.getBody(),
                     deeplink
             );
+        } */
+
+        // 즉시 발송 → 큐 적재로 변경
+        for (Notification n : notifications) {
+            pushJobProducer.enqueue(new PushJobPayload(
+                    n.getUser().getId(),
+                    n.getTitle(),
+                    n.getBody(),
+                    deeplink
+            ));
         }
     }
 
@@ -90,12 +104,21 @@ public class NotificationService {
             String deeplink = "https://buy-dobong.vercel.app/keywordSearch?query="
                     + java.net.URLEncoder.encode(keyword, java.nio.charset.StandardCharsets.UTF_8);
 
+            /** 서버에서 알림 즉시 발송
             webPushSender.sendToUser(
                     n.getUser().getId(),
                     n.getTitle(),
                     n.getBody(),
                     deeplink
-            );
+            ); */
+
+            // 즉시 발송 → 큐 적재로 변경
+            pushJobProducer.enqueue(new PushJobPayload(
+                    n.getUser().getId(),
+                    n.getTitle(),
+                    n.getBody(),
+                    deeplink
+            ));
         }
     }
 
