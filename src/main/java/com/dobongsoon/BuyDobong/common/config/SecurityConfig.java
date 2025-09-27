@@ -3,6 +3,7 @@ package com.dobongsoon.BuyDobong.common.config;
 import com.dobongsoon.BuyDobong.common.jwt.JwtAuthenticationFilter;
 import com.dobongsoon.BuyDobong.common.jwt.JwtProvider;
 import com.dobongsoon.BuyDobong.common.security.BlacklistCheckFilter;
+import com.dobongsoon.BuyDobong.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
     private final BlacklistCheckFilter blacklistCheckFilter;
 
     @Bean
@@ -50,11 +52,14 @@ public class SecurityConfig {
                 );
 
         http.addFilterBefore(blacklistCheckFilter, UsernamePasswordAuthenticationFilter.class);
-
-        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtProvider);
-        http.addFilterAfter(jwtFilter, BlacklistCheckFilter.class);
+        http.addFilterAfter(jwtAuthenticationFilter(), BlacklistCheckFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter(jwtProvider, userRepository);
     }
 
     @Bean
