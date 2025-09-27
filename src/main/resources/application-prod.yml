@@ -26,6 +26,12 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+      enabled: true
+
 server:
   port: 8080
   forward-headers-strategy: native
