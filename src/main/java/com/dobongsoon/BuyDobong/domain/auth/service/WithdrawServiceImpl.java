@@ -62,15 +62,21 @@ public class WithdrawServiceImpl implements WithdrawService {
         // 참조 삭제
         Long storeId = userCascadeDeleteRepository.findStoreIdByUserId(userId);
 
-        userCascadeDeleteRepository.deleteProductsByStoreId(storeId);
-        userCascadeDeleteRepository.deleteRecentStoresByStoreId(storeId);
+        if (storeId != null) {
+            userCascadeDeleteRepository.deleteProductsByStoreId(storeId);
+            userCascadeDeleteRepository.deleteRecentStoresByStoreId(storeId);
+        }
+
         userCascadeDeleteRepository.deletePushSubscriptionsByUserId(userId);
         userCascadeDeleteRepository.deleteNotificationsByUserId(userId);
         userCascadeDeleteRepository.deleteUserKeywordsByUserId(userId);
         userCascadeDeleteRepository.deleteFavoriteStoresByUserId(userId);
         userCascadeDeleteRepository.deleteRecentStoresByUserId(userId);
 
-        userCascadeDeleteRepository.deleteStoreById(userId);
+        if (storeId != null) {
+            userCascadeDeleteRepository.deleteStoreById(storeId);
+        }
+
         userCascadeDeleteRepository.deleteUserById(userId);
         
         logoutService.logout(authorizationHeader);
