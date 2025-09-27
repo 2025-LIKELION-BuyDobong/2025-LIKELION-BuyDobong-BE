@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 long userId = Long.parseLong(sub);
 
-                // 탈퇴한 사용자 차단 (DB 존재 검사)
+                // 탈퇴한 사용자 차단! (DB 존재 검사)
                 if (!userRepository.existsById(userId)) {
                     chain.doFilter(req, res);
                     return;
