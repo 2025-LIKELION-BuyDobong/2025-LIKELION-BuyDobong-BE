@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
-//    private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
@@ -38,12 +38,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 long userId = Long.parseLong(sub);
-//
-//                // 탈퇴한 사용자 차단 (DB 존재 검사)
-//                if (!userRepository.existsById(userId)) {
-//                    chain.doFilter(req, res);
-//                    return;
-//                }
+
+                // 탈퇴한 사용자 차단 (DB 존재 검사)
+                if (!userRepository.existsById(userId)) {
+                    chain.doFilter(req, res);
+                    return;
+                }
 
                 var authentication = new UsernamePasswordAuthenticationToken(
                         userId,
